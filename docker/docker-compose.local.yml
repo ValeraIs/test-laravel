@@ -1,0 +1,78 @@
+version: '3'
+
+x-base: &base
+  env_file:
+    - ./.env
+
+x-mysql: &mysql
+  <<: *base
+  environment:
+    - MYSQL_DATABSE=${DB_DATABASE}
+    - MYSQL_USER=${DB_USERNAME}
+    - MYSQL_PASSWORD=${DB_PASSWORD}
+    - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+
+x-phpmyadmin: &phpmyadmin
+  environment:
+    - PMA_HOST=${DB_HOST}
+    - PMA_USER=root
+    - PMA_PASSWORD=${DB_PASSWORD}
+
+x-mysql-volumes: &mysql-volumes
+  - ./../storages/mysql:/var/lib/mysql
+  - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+x-web-volumes: &web-volumes
+  - ./../project:/var/www/project
+  - ./nginx/default.conf:/etc/nginx/conf.d/
+
+x-php-volumes: &php-volumes
+  - ./../project:/var/www/project
+  - ./php:/var/www/docker
+
+services:
+  php:
+    <<: *base
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    container_name: news_php
+    networks:
+      - app-network
+    volumes: *php-volumes
+
+  web:
+    <<: *base
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - 80:80
+    networks:
+      - app-network
+    volumes: *web-volumes
+
+  mysql:
+    <<: *mysql
+    image: mysql:5.7.12
+    container_name: news_mysql
+    volumes: *mysql-volumes
+    networks:
+      - app-network
+
+  phpmyadmin:
+    <<: *phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    container_name: news_phpmyadmin
+    ports:
+      - 1234:80
+    networks:
+      - app-network
+
+  redis:
+    image: "redis:alpine"
+    container_name: news_redis
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
