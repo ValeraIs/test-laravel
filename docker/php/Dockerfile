@@ -22,15 +22,18 @@ RUN docker-php-ext-enable xdebug
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+COPY ./docker/php /var/www/docker
+WORKDIR /var/www/docker
+RUN chmod u+x /var/www/docker/start.sh
+
+
 RUN mkdir /var/www/project
 
-COPY .  /var/www/project
+COPY ./project  /var/www/project
 WORKDIR  /var/www/project
 
 # Copy existing application directory permissions
 RUN chown www-data:www-data -R /var/www/project
-
-CMD composer install
 
 CMD /var/www/docker/start.sh && \
     php-fpm -F -R
