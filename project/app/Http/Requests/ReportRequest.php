@@ -5,10 +5,10 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Class MiningRequest
+ * Class ReportRequest
  * @package App\Http\Requests
  */
-class MiningRequest extends FormRequest
+class ReportRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,9 +28,7 @@ class MiningRequest extends FormRequest
     public function rules()
     {
         return [
-            'company_id' => ['required', 'exists:companies,id'],
-            'mined' => ['required', 'integer'],
-            'date_mined' => ['required', 'date_format:Y-m-d'],
+            'date_mined' => ['required', 'date_format:Y-m'],
         ];
     }
 }

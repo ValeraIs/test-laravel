@@ -31,7 +31,8 @@ class Mining extends Model
      * @var array
      */
     protected $casts = [
-        'mined' => 'integer'
+        'mined' => 'integer',
+        'date_mined' => 'date'
     ];
 
     /**

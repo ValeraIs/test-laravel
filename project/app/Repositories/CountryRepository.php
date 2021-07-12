@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use App\Exceptions\DeleteException;
 use App\Models\Country;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class CountryRepository
@@ -23,6 +25,27 @@ class CountryRepository extends CoreCRUDRepository
         } else {
             throw new DeleteException('This country has relations');
         }
+    }
+
+    /**
+     * Get countries mining by month
+     *
+     * @param $date
+     *
+     * @return mixed
+     */
+    public function reportByMonth($date)
+    {
+        $date = new Carbon($date);
+
+        return Country::select(['countries.id', DB::raw('SUM(minings.mined) as mined'),'countries.plan'])
+            ->join('companies', 'countries.id', '=', 'companies.country_id')
+            ->crossJoin('minings', 'companies.id', '=', 'minings.company_id')
+            ->whereMonth('minings.date_mined', '=', $date->month)
+            ->whereYear('minings.date_mined', '=', $date->year)
+            ->groupBy('countries.id')
+            ->havingRaw('mined > countries.plan')
+            ->get();
     }
 
     private function isAllowToDelete(): bool

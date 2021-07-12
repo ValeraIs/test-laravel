@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\CountryRequest;
+use App\Http\Requests\ReportRequest;
 use App\Http\Resources\CountryResource;
 use App\Repositories\CountryRepository;
 
@@ -30,5 +31,16 @@ class CountryController extends CoreCRUDController
     protected function resourceClass(): string
     {
         return CountryResource::class;
+    }
+
+    /**
+     * Get report mined by month
+     *
+     * @return \App\Response\ServerResponse
+     */
+    public function report(ReportRequest $request)
+    {
+        return $this->serverResponse()
+            ->resource($this->repository->reportByMonth($request->get('date_mined')));
     }
 }

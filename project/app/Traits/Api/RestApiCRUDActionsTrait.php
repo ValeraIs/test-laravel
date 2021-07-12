@@ -66,6 +66,7 @@ trait RestApiCRUDActionsTrait
         $item = $this->repository->store($this->getActionRequest());
 
         return $this->getServerResponseWithContent($item)
+            ->status(201)
             ->send();
     }
 

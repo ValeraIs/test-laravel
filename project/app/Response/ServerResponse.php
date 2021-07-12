@@ -25,7 +25,7 @@ class ServerResponse extends Response
     public function __construct($content = '', $status = 200, array $headers = [])
     {
         parent::__construct($content, $status, $headers);
-        $this->original = $this->getDefaultResponse(false, $status);
+        $this->original = $this->getDefaultResponse(true, $status);
         $this->content = $this->original;
 
         return $this;
@@ -125,7 +125,7 @@ class ServerResponse extends Response
      */
     public function status(int $code = 200): ServerResponse
     {
-        $this->setStatusCode($code);
+        $this->setStatusCode(422 == $code ? 200 : $code);// хак axios не хочет отдавать response когда ошибка 422
         $this->content['code'] = $code;
         $this->content['success'] = $code >= 200 && $code <= 299;
 
