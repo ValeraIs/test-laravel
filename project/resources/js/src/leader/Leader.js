@@ -1,8 +1,7 @@
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import List from "./List";
-import AddEdit from "./AddEdit";
 
-const Mining = ({match}) => {
+const Leader = ({match}) => {
     const { path } = match;
 
     return (
@@ -10,12 +9,10 @@ const Mining = ({match}) => {
             <div className="container mt-3">
                 <Switch>
                     <Route exact path={path} component={List} />
-                    <Route exact path={`${path}/add`} component={AddEdit} />
-                    <Route exact path={`${path}/edit/:id`} component={AddEdit} />
                 </Switch>
             </div>
         </Router>
     );
 };
 
-export default Mining;
+export default Leader;

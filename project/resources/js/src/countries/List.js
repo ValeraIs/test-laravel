@@ -1,6 +1,7 @@
 import {Component} from 'react'
 import CountryService from "../services/CountryService";
 import {Link} from "react-router-dom";
+import getFormattingWeight from "../common";
 
 export default class List extends Component{
     constructor(props) {
@@ -76,7 +77,7 @@ export default class List extends Component{
                         {countries && countries.map((country, index) => (
                             <tr key={country.id}>
                                 <td>{country.name}</td>
-                                <td>{country.plan}</td>
+                                <td>{getFormattingWeight(country.plan)}</td>
                                 <td>
                                     <Link to={`${this.path}/edit/${country.id}`} className="btn btn-sm btn-primary mr-1">
                                         edit

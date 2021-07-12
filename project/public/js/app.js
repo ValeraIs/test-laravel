@@ -7060,7 +7060,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _companies_Companies__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./companies/Companies */ "./resources/js/src/companies/Companies.js");
 /* harmony import */ var _home__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./home */ "./resources/js/src/home/index.js");
 /* harmony import */ var _countries_Countries__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./countries/Countries */ "./resources/js/src/countries/Countries.js");
-/* harmony import */ var _mining_Mining__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./mining/Mining */ "./resources/js/src/mining/Mining.js");
+/* harmony import */ var _leader_Leader__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./leader/Leader */ "./resources/js/src/leader/Leader.js");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 
 
@@ -7092,8 +7092,8 @@ var App = function App() {
           component: _countries_Countries__WEBPACK_IMPORTED_MODULE_5__.default
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_9__.Route, {
           exact: true,
-          path: "/mining",
-          component: _mining_Mining__WEBPACK_IMPORTED_MODULE_6__.default
+          path: "/leader",
+          component: _leader_Leader__WEBPACK_IMPORTED_MODULE_6__.default
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_9__.Redirect, {
           from: "*",
           to: "/"
@@ -7104,6 +7104,34 @@ var App = function App() {
 };
 
 react_dom__WEBPACK_IMPORTED_MODULE_1__.render( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(App, {}), document.getElementById('app'));
+
+/***/ }),
+
+/***/ "./resources/js/src/common.js":
+/*!************************************!*\
+  !*** ./resources/js/src/common.js ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+var getFormattingWeight = function getFormattingWeight(weight) {
+  var ton = 1000000,
+      kilo = 1000;
+
+  if (weight >= ton) {
+    return (weight / ton).toFixed(2) + " T";
+  } else if (weight >= kilo) {
+    return (weight / kilo).toFixed(2) + " Kg";
+  } else {
+    return weight + " g";
+  }
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (getFormattingWeight);
 
 /***/ }),
 
@@ -7713,9 +7741,9 @@ var Nav = function Nav() {
         className: "nav-item nav-link",
         children: "Countries"
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_2__.NavLink, {
-        to: "/mining",
+        to: "/leader",
         className: "nav-item nav-link",
-        children: "Mining"
+        children: "Leader"
       })]
     })
   });
@@ -8037,8 +8065,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _services_CountryService__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../services/CountryService */ "./resources/js/src/services/CountryService.js");
-/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../common */ "./resources/js/src/common.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -8060,6 +8089,7 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 
 
 
@@ -8137,49 +8167,49 @@ var List = /*#__PURE__*/function (_Component) {
           countries = _this$state.countries,
           error = _this$state.error,
           alertMessage = _this$state.alertMessage;
-      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
-        children: [alertMessage && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
+      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
+        children: [alertMessage && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
           className: "alert alert-".concat(error ? 'danger' : 'success'),
           role: "alert",
-          children: [alertMessage, /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("button", {
+          children: [alertMessage, /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
             type: "button",
             className: "close",
             "data-dismiss": "alert",
             "aria-label": "Close",
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("span", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("span", {
               "aria-hidden": "true",
               children: "\xD7"
             })
           })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_3__.Link, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_4__.Link, {
           to: "".concat(this.path, "/add"),
           className: "btn btn-success mb-2",
           children: "Create country"
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("table", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("table", {
           className: "table table-striped",
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("thead", {
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("tr", {
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("th", {
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("thead", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("tr", {
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("th", {
                 scope: "col",
                 children: "Name"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("th", {
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("th", {
                 scope: "col",
                 children: "Plan"
               })]
             })
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("tbody", {
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("tbody", {
             children: [countries && countries.map(function (country, index) {
-              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("tr", {
-                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("td", {
+              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("tr", {
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("td", {
                   children: country.name
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("td", {
-                  children: country.plan
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("td", {
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_3__.Link, {
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("td", {
+                  children: (0,_common__WEBPACK_IMPORTED_MODULE_2__.default)(country.plan)
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("td", {
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_4__.Link, {
                     to: "".concat(_this4.path, "/edit/").concat(country.id),
                     className: "btn btn-sm btn-primary mr-1",
                     children: "edit"
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("button", {
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("button", {
                     onClick: function onClick() {
                       return _this4.deleteCountry(country.id, index);
                     },
@@ -8188,11 +8218,11 @@ var List = /*#__PURE__*/function (_Component) {
                   })]
                 })]
               }, country.id);
-            }), countries && !countries.length && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("tr", {
-              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("td", {
+            }), countries && !countries.length && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("tr", {
+              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("td", {
                 colSpan: "4",
                 className: "text-center",
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
+                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
                   className: "p-2",
                   children: "No countries to display"
                 })
@@ -8271,332 +8301,49 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/src/mining/AddEdit.js":
-/*!********************************************!*\
-  !*** ./resources/js/src/mining/AddEdit.js ***!
-  \********************************************/
+/***/ "./resources/js/src/leader/Leader.js":
+/*!*******************************************!*\
+  !*** ./resources/js/src/leader/Leader.js ***!
+  \*******************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ AddEdit)
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var react_select__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react-select */ "./node_modules/react-select/dist/react-select.esm.js");
-/* harmony import */ var _services_CompanyService__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../services/CompanyService */ "./resources/js/src/services/CompanyService.js");
-/* harmony import */ var _services_MiningService__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../services/MiningService */ "./resources/js/src/services/MiningService.js");
-/* harmony import */ var react_datepicker__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react-datepicker */ "./node_modules/react-datepicker/dist/react-datepicker.min.js");
-/* harmony import */ var react_datepicker__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(react_datepicker__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var react_datepicker_dist_react_datepicker_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-datepicker/dist/react-datepicker.css */ "./node_modules/react-datepicker/dist/react-datepicker.css");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router/esm/react-router.js");
+/* harmony import */ var _List__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./List */ "./resources/js/src/leader/List.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 
 
 
 
+var Leader = function Leader(_ref) {
+  var match = _ref.match;
+  var path = match.path;
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_2__.BrowserRouter, {
+    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      className: "container mt-3",
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_3__.Switch, {
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_3__.Route, {
+          exact: true,
+          path: path,
+          component: _List__WEBPACK_IMPORTED_MODULE_0__.default
+        })
+      })
+    })
+  });
+};
 
-
-
-
-
-
-var AddEdit = /*#__PURE__*/function (_Component) {
-  _inherits(AddEdit, _Component);
-
-  var _super = _createSuper(AddEdit);
-
-  function AddEdit(props) {
-    var _this;
-
-    _classCallCheck(this, AddEdit);
-
-    _this = _super.call(this, props);
-    _this.isAddMode = !_this.props.match.params.id;
-    _this.onChangeMined = _this.onChangeMined.bind(_assertThisInitialized(_this));
-    _this.onChangeDateMined = _this.onChangeDateMined.bind(_assertThisInitialized(_this));
-    _this.onChangeCompanyId = _this.onChangeCompanyId.bind(_assertThisInitialized(_this));
-    _this.onSubmit = _this.onSubmit.bind(_assertThisInitialized(_this));
-    _this.state = {
-      id: null,
-      mined: "",
-      date_mined: "",
-      company: {},
-      companies: [],
-      alertMessage: "",
-      error: false,
-      errorMessages: {},
-      submitted: false
-    };
-
-    _this.loadCompanies();
-
-    return _this;
-  }
-
-  _createClass(AddEdit, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      if (this.props.match.params.id) {
-        this.getMining(this.props.match.params.id);
-      }
-    }
-  }, {
-    key: "onChangeMined",
-    value: function onChangeMined(e) {
-      delete this.state.errorMessages['mined'];
-      this.setState({
-        mined: e.target.value,
-        error: !!this.state.errorMessages,
-        errorMessage: this.state.errorMessages
-      });
-    }
-  }, {
-    key: "onChangeDateMined",
-    value: function onChangeDateMined(date) {
-      delete this.state.errorMessages['date_mined'];
-      this.setState({
-        date_mined: new Date(date),
-        error: !!this.state.errorMessages,
-        errorMessage: this.state.errorMessages
-      });
-    }
-  }, {
-    key: "onChangeCompanyId",
-    value: function onChangeCompanyId(selectCompany) {
-      delete this.state.errorMessages['company_id'];
-      this.setState({
-        company: selectCompany,
-        error: !!this.state.errorMessages,
-        errorMessage: this.state.errorMessages
-      });
-    }
-  }, {
-    key: "onSubmit",
-    value: function onSubmit() {
-      var data = {
-        mined: this.state.mined,
-        date_mined: this.state.date_mined.toISOString().split('T')[0],
-        company_id: parseInt(this.state.company.value)
-      };
-      this.isAddMode ? this.createMining(data) : this.updateMining(data);
-    }
-  }, {
-    key: "createMining",
-    value: function createMining(data) {
-      var _this2 = this;
-
-      _services_MiningService__WEBPACK_IMPORTED_MODULE_2__.default.create(data).then(function (response) {
-        if (response.data.code === 422) {
-          _this2.prepareValidationErrors(response.data.errors);
-        } else {
-          _this2.setState(_objectSpread(_objectSpread({}, _this2.getMiningFromResponse(response)), {}, {
-            alertMessage: "Mining has been successfully created."
-          }));
-        }
-      })["catch"](function (e) {
-        console.log(e);
-      });
-    }
-  }, {
-    key: "updateMining",
-    value: function updateMining(data) {
-      var _this3 = this;
-
-      _services_MiningService__WEBPACK_IMPORTED_MODULE_2__.default.update(this.props.match.params.id, data).then(function (response) {
-        if (response.data.code === 422) {
-          _this3.prepareValidationErrors(response.data.errors);
-        } else {
-          _this3.setState(_objectSpread(_objectSpread({}, _this3.getMiningFromResponse(response)), {}, {
-            alertMessage: "Mining has been successfully updated."
-          }));
-        }
-      })["catch"](function (e) {
-        console.log(e);
-      });
-    }
-  }, {
-    key: "getMining",
-    value: function getMining(id) {
-      var _this4 = this;
-
-      _services_MiningService__WEBPACK_IMPORTED_MODULE_2__.default.get(id).then(function (response) {
-        _this4.setState(_objectSpread({}, _this4.getMiningFromResponse(response)));
-
-        console.log(response.data);
-      })["catch"](function (e) {
-        console.log(e);
-      });
-    }
-  }, {
-    key: "getMiningFromResponse",
-    value: function getMiningFromResponse(response) {
-      var _response$data$data$r, _response$data$data$r2, _response$data$data$r3, _response$data$data$r4;
-
-      return {
-        mined: response.data.data.mined,
-        date_mined: new Date(response.data.data.date_mined),
-        company: {
-          value: (_response$data$data$r = response.data.data.relations) === null || _response$data$data$r === void 0 ? void 0 : (_response$data$data$r2 = _response$data$data$r.company) === null || _response$data$data$r2 === void 0 ? void 0 : _response$data$data$r2.id,
-          label: (_response$data$data$r3 = response.data.data.relations) === null || _response$data$data$r3 === void 0 ? void 0 : (_response$data$data$r4 = _response$data$data$r3.company) === null || _response$data$data$r4 === void 0 ? void 0 : _response$data$data$r4.name
-        }
-      };
-    }
-  }, {
-    key: "prepareValidationErrors",
-    value: function prepareValidationErrors(errors) {
-      var errorMessages = {};
-      errors.forEach(function (value) {
-        errorMessages[value.field] = value.errors;
-      });
-      this.setState({
-        error: true,
-        errorMessages: errorMessages
-      });
-    }
-  }, {
-    key: "loadCompanies",
-    value: function loadCompanies() {
-      var _this5 = this;
-
-      _services_CompanyService__WEBPACK_IMPORTED_MODULE_1__.default.getAll().then(function (response) {
-        var _response$data;
-
-        if ((_response$data = response.data) !== null && _response$data !== void 0 && _response$data.data) {
-          var companies = response.data.data.map(function (company) {
-            return {
-              value: company.id,
-              label: company.name
-            };
-          });
-
-          _this5.setState({
-            companies: companies
-          });
-        }
-      });
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this6 = this;
-
-      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-        children: [this.state.alertMessage && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-          className: "alert alert-success",
-          role: "alert",
-          children: [this.state.alertMessage, /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
-            type: "button",
-            className: "close",
-            "data-dismiss": "alert",
-            "aria-label": "Close",
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
-              "aria-hidden": "true",
-              children: "\xD7"
-            })
-          })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-          className: "form-group col-5",
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("label", {
-            htmlFor: "country_id",
-            children: "Company"
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(react_select__WEBPACK_IMPORTED_MODULE_5__.default, {
-            options: this.state.companies,
-            value: this.state.company,
-            onChange: function onChange(values) {
-              return _this6.onChangeCompanyId(values);
-            },
-            className: "".concat(this.state.errorMessages.company_id ? 'is-invalid' : ''),
-            required: true,
-            name: "name"
-          }), this.state.errorMessages.company_id && this.state.errorMessages.company_id.map(function (error) {
-            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-              className: "invalid-feedback",
-              children: error
-            });
-          })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-          className: "form-group col-5",
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("label", {
-            children: "Mined"
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("input", {
-            type: "text",
-            required: true,
-            value: this.state.mined,
-            onChange: this.onChangeMined,
-            name: "name",
-            className: "form-control ".concat(this.state.errorMessages.mined ? 'is-invalid' : '')
-          }), this.state.errorMessages.mined && this.state.errorMessages.mined.map(function (error) {
-            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-              className: "invalid-feedback",
-              children: error
-            });
-          })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
-          className: "form-group col-5",
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("label", {
-            children: "Date mined"
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)((react_datepicker__WEBPACK_IMPORTED_MODULE_6___default()), {
-            dateFormat: "y-MM-dd",
-            onChange: function onChange(value) {
-              return _this6.onChangeDateMined(value);
-            },
-            selected: this.state.date_mined,
-            className: "form-control ".concat(this.state.errorMessages.date_mined ? 'is-invalid' : '')
-          }), this.state.errorMessages.date_mined && this.state.errorMessages.date_mined.map(function (error) {
-            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-              className: "invalid-feedback",
-              children: error
-            });
-          })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
-          className: "form-group col-5",
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
-            onClick: this.onSubmit,
-            className: "btn btn-".concat(this.isAddMode ? 'success' : 'primary'),
-            children: this.isAddMode ? 'Create' : 'Update'
-          })
-        })]
-      });
-    }
-  }]);
-
-  return AddEdit;
-}(react__WEBPACK_IMPORTED_MODULE_0__.Component);
-
-
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Leader);
 
 /***/ }),
 
-/***/ "./resources/js/src/mining/List.js":
+/***/ "./resources/js/src/leader/List.js":
 /*!*****************************************!*\
-  !*** ./resources/js/src/mining/List.js ***!
+  !*** ./resources/js/src/leader/List.js ***!
   \*****************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -8606,9 +8353,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ List)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _services_MiningService__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../services/MiningService */ "./resources/js/src/services/MiningService.js");
-/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _services_ReportService__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../services/ReportService */ "./resources/js/src/services/ReportService.js");
+/* harmony import */ var react_datepicker__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react-datepicker */ "./node_modules/react-datepicker/dist/react-datepicker.min.js");
+/* harmony import */ var react_datepicker__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(react_datepicker__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../common */ "./resources/js/src/common.js");
+/* harmony import */ var react_datepicker_dist_react_datepicker_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-datepicker/dist/react-datepicker.css */ "./node_modules/react-datepicker/dist/react-datepicker.css");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -8630,6 +8380,8 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+
 
 
 
@@ -8649,53 +8401,79 @@ var List = /*#__PURE__*/function (_Component) {
 
     _this = _super.call(this, props);
     _this.path = props.match.path;
-    _this.getMinings = _this.getMinings.bind(_assertThisInitialized(_this));
-    _this.deleteMining = _this.deleteMining.bind(_assertThisInitialized(_this));
+    _this.generateData = _this.generateData.bind(_assertThisInitialized(_this));
+    _this.onChangeDateReport = _this.onChangeDateReport.bind(_assertThisInitialized(_this));
+    _this.loadCountries = _this.loadCountries.bind(_assertThisInitialized(_this));
     _this.state = {
-      minings: [],
-      error: false,
-      alertMessage: ''
+      date_mined: "",
+      alertMessage: "",
+      countries: [],
+      errorMessages: [],
+      error: false
     };
     return _this;
   }
 
   _createClass(List, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.getMinings();
+    key: "onChangeDateReport",
+    value: function onChangeDateReport(date) {
+      delete this.state.errorMessages['date_mined'];
+      this.setState({
+        date_mined: new Date(date),
+        error: !!this.state.errorMessages,
+        errorMessage: this.state.errorMessages
+      });
     }
   }, {
-    key: "getMinings",
-    value: function getMinings() {
+    key: "loadCountries",
+    value: function loadCountries() {
       var _this2 = this;
 
-      _services_MiningService__WEBPACK_IMPORTED_MODULE_1__.default.getAll().then(function (response) {
-        _this2.setState({
-          minings: response.data.data
-        });
+      var data = {};
 
-        console.log(response.data.data);
+      if (this.state.date_mined) {
+        data = {
+          date_mined: this.state.date_mined.getFullYear() + '-' + ('0' + (this.state.date_mined.getMonth() + 1)).slice(-2)
+        };
+      }
+
+      _services_ReportService__WEBPACK_IMPORTED_MODULE_1__.default.getAllByMonth(data).then(function (response) {
+        if (response.data.code === 422) {
+          _this2.prepareValidationErrors(response.data.errors);
+        } else {
+          _this2.setState({
+            countries: response.data.data
+          });
+        }
       })["catch"](function (e) {
         console.log(e);
       });
     }
   }, {
-    key: "deleteMining",
-    value: function deleteMining(MiningId, index) {
+    key: "generateData",
+    value: function generateData() {
       var _this3 = this;
 
-      _services_MiningService__WEBPACK_IMPORTED_MODULE_1__.default.delete(MiningId).then(function (response) {
-        delete _this3.state.minings[index];
+      _services_ReportService__WEBPACK_IMPORTED_MODULE_1__.default.generateData().then(function (response) {
+        console.log('test');
 
         _this3.setState({
-          error: false,
-          alertMessage: "Mining has been successfully deleted."
+          alertMessage: 'The data generation job has been started. It can take a long time.'
         });
       })["catch"](function (e) {
-        _this3.setState({
-          error: true,
-          alertMessage: e.response.data.errors.shift().errors.shift()
-        });
+        console.log(e);
+      });
+    }
+  }, {
+    key: "prepareValidationErrors",
+    value: function prepareValidationErrors(errors) {
+      var errorMessages = {};
+      errors.forEach(function (value) {
+        errorMessages[value.field] = value.errors;
+      });
+      this.setState({
+        error: true,
+        errorMessages: errorMessages
       });
     }
   }, {
@@ -8703,78 +8481,92 @@ var List = /*#__PURE__*/function (_Component) {
     value: function render() {
       var _this4 = this;
 
-      var _this$state = this.state,
-          minings = _this$state.minings,
-          error = _this$state.error,
-          alertMessage = _this$state.alertMessage;
-      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
-        children: [alertMessage && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
-          className: "alert alert-".concat(error ? 'danger' : 'success'),
+      var countries = this.state.countries;
+      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+        children: [this.state.alertMessage && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+          className: "alert alert-success",
           role: "alert",
-          children: [alertMessage, /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("button", {
+          children: [this.state.alertMessage, /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
             type: "button",
             className: "close",
             "data-dismiss": "alert",
             "aria-label": "Close",
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("span", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
               "aria-hidden": "true",
               children: "\xD7"
             })
           })]
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_3__.Link, {
-          to: "".concat(this.path, "/add"),
-          className: "btn btn-success mb-2",
-          children: "Create mining"
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("table", {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+          className: "form-group col-5",
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("label", {
+            children: "Date mined"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)((react_datepicker__WEBPACK_IMPORTED_MODULE_5___default()), {
+            dateFormat: "y-MM",
+            showMonthYearPicker: true,
+            onChange: function onChange(value) {
+              return _this4.onChangeDateReport(value);
+            },
+            selected: this.state.date_mined,
+            className: "form-control ".concat(this.state.errorMessages.date_mined ? 'is-invalid' : '')
+          }), this.state.errorMessages.date_mined && this.state.errorMessages.date_mined.map(function (error) {
+            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+              className: "invalid-feedback",
+              children: error
+            });
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+          className: "row mb-2",
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+            className: "col-5",
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+              onClick: this.loadCountries,
+              className: "btn btn-success",
+              children: "Show report"
+            })
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+            className: "col-5",
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+              onClick: this.generateData,
+              className: "btn btn-warning",
+              children: "Generate data"
+            })
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("table", {
           className: "table table-striped",
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("thead", {
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("tr", {
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("th", {
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("thead", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("tr", {
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
                 scope: "col",
-                children: "Company"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("th", {
-                scope: "col",
-                children: "Date/Time"
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("th", {
+                children: "Country"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
                 scope: "col",
                 children: "Mined"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("th", {
+                scope: "col",
+                children: "Plan"
               })]
             })
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("tbody", {
-            children: [minings && minings.map(function (mining, index) {
-              var _mining$relations, _mining$relations$com;
-
-              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("tr", {
-                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("td", {
-                  children: (_mining$relations = mining.relations) === null || _mining$relations === void 0 ? void 0 : (_mining$relations$com = _mining$relations.company) === null || _mining$relations$com === void 0 ? void 0 : _mining$relations$com.name
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("td", {
-                  children: new Date(mining.date_mined).toUTCString()
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("td", {
-                  children: mining.mined
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("td", {
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_3__.Link, {
-                    to: "".concat(_this4.path, "/edit/").concat(mining.id),
-                    className: "btn btn-sm btn-primary mr-1",
-                    children: "edit"
-                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("button", {
-                    onClick: function onClick() {
-                      return _this4.deleteMining(mining.id, index);
-                    },
-                    className: "btn btn-sm btn-danger",
-                    children: "delete"
-                  })]
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("tbody", {
+            children: [countries && countries.map(function (country, index) {
+              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("tr", {
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  children: country.name
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  children: (0,_common__WEBPACK_IMPORTED_MODULE_2__.default)(country.mined)
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
+                  children: (0,_common__WEBPACK_IMPORTED_MODULE_2__.default)(country.plan)
                 })]
-              }, mining.id);
-            }), minings && !minings.length && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("tr", {
-              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("td", {
+              }, country.id);
+            }), countries && !countries.length && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("tr", {
+              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("td", {
                 colSpan: "4",
                 className: "text-center",
-                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
+                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
                   className: "p-2",
-                  children: "No mining to display"
+                  children: "No country to display"
                 })
               })
-            })]
+            }, "1")]
           })]
         })]
       });
@@ -8786,57 +8578,6 @@ var List = /*#__PURE__*/function (_Component) {
 
 
 ;
-
-/***/ }),
-
-/***/ "./resources/js/src/mining/Mining.js":
-/*!*******************************************!*\
-  !*** ./resources/js/src/mining/Mining.js ***!
-  \*******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router/esm/react-router.js");
-/* harmony import */ var _List__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./List */ "./resources/js/src/mining/List.js");
-/* harmony import */ var _AddEdit__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AddEdit */ "./resources/js/src/mining/AddEdit.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
-
-
-
-
-
-
-var Mining = function Mining(_ref) {
-  var match = _ref.match;
-  var path = match.path;
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_3__.BrowserRouter, {
-    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
-      className: "container mt-3",
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)(react_router_dom__WEBPACK_IMPORTED_MODULE_4__.Switch, {
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_4__.Route, {
-          exact: true,
-          path: path,
-          component: _List__WEBPACK_IMPORTED_MODULE_0__.default
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_4__.Route, {
-          exact: true,
-          path: "".concat(path, "/add"),
-          component: _AddEdit__WEBPACK_IMPORTED_MODULE_1__.default
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_4__.Route, {
-          exact: true,
-          path: "".concat(path, "/edit/:id"),
-          component: _AddEdit__WEBPACK_IMPORTED_MODULE_1__.default
-        })]
-      })
-    })
-  });
-};
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Mining);
 
 /***/ }),
 
@@ -8958,9 +8699,9 @@ var CountryService = /*#__PURE__*/function () {
 
 /***/ }),
 
-/***/ "./resources/js/src/services/MiningService.js":
+/***/ "./resources/js/src/services/ReportService.js":
 /*!****************************************************!*\
-  !*** ./resources/js/src/services/MiningService.js ***!
+  !*** ./resources/js/src/services/ReportService.js ***!
   \****************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -8978,42 +8719,27 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
 
-var MiningService = /*#__PURE__*/function () {
-  function MiningService() {
-    _classCallCheck(this, MiningService);
+var ReportService = /*#__PURE__*/function () {
+  function ReportService() {
+    _classCallCheck(this, ReportService);
   }
 
-  _createClass(MiningService, [{
-    key: "getAll",
-    value: function getAll() {
-      return _http_common__WEBPACK_IMPORTED_MODULE_0__.default.get("/mining");
+  _createClass(ReportService, [{
+    key: "getAllByMonth",
+    value: function getAllByMonth(data) {
+      return _http_common__WEBPACK_IMPORTED_MODULE_0__.default.post("/countries-report", data);
     }
   }, {
-    key: "get",
-    value: function get(id) {
-      return _http_common__WEBPACK_IMPORTED_MODULE_0__.default.get("/mining/".concat(id));
-    }
-  }, {
-    key: "create",
-    value: function create(data) {
-      return _http_common__WEBPACK_IMPORTED_MODULE_0__.default.post("/mining", data);
-    }
-  }, {
-    key: "update",
-    value: function update(id, data) {
-      return _http_common__WEBPACK_IMPORTED_MODULE_0__.default.put("/mining/".concat(id), data);
-    }
-  }, {
-    key: "delete",
-    value: function _delete(id) {
-      return _http_common__WEBPACK_IMPORTED_MODULE_0__.default.delete("/mining/".concat(id));
+    key: "generateData",
+    value: function generateData() {
+      return _http_common__WEBPACK_IMPORTED_MODULE_0__.default.get("/generate-data");
     }
   }]);
 
-  return MiningService;
+  return ReportService;
 }();
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new MiningService());
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new ReportService());
 
 /***/ }),
 

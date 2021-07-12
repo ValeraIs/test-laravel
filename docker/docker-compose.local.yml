@@ -29,6 +29,11 @@ x-php-volumes: &php-volumes
   - ./../project:/var/www/project
   - ./php:/var/www/docker
 
+x-queue-volumes: &queue-volumes
+  - ./../project:/var/www/project
+  - ./queue:/var/www/docker
+
+
 services:
   php:
     <<: *base
@@ -70,6 +75,16 @@ services:
   redis:
     image: "redis:alpine"
     container_name: ${APP_NAME}_redis
+    networks:
+      - app-network
+
+  queue:
+    <<: *base
+    container_name: ${APP_NAME}_queue
+    build:
+      context: ./../
+      dockerfile: ./docker/queue/Dockerfile
+    volumes: *queue-volumes
     networks:
       - app-network
 networks:

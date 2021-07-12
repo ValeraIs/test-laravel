@@ -11,7 +11,7 @@ import Nav from './components/Nav'
 import Companies from "./companies/Companies";
 import Home from "./home";
 import Countries from "./countries/Countries";
-import Mining from "./mining/Mining";
+import Leader from "./leader/Leader";
 
 const App = () => {
     return (
@@ -22,7 +22,7 @@ const App = () => {
                     <Route exact path="/" component={Home} />
                     <Route exact path="/companies" component={Companies} />
                     <Route exact path="/countries" component={Countries} />
-                    <Route exact path="/mining" component={Mining} />
+                    <Route exact path="/leader" component={Leader} />
                     <Redirect from="*" to="/" />
                 </Switch>
             </div>

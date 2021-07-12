@@ -38,7 +38,7 @@ class CountryRepository extends CoreCRUDRepository
     {
         $date = new Carbon($date);
 
-        return Country::select(['countries.id', DB::raw('SUM(minings.mined) as mined'),'countries.plan'])
+        return Country::select(['countries.id', 'countries.name', DB::raw('SUM(minings.mined) as mined'),'countries.plan'])
             ->join('companies', 'countries.id', '=', 'companies.country_id')
             ->crossJoin('minings', 'companies.id', '=', 'minings.company_id')
             ->whereMonth('minings.date_mined', '=', $date->month)

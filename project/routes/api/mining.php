@@ -1,2 +1,2 @@
 <?php
-Route::apiResource('mining', 'Api\MiningController');
+Route::get('generate-data', 'Api\MiningController@generateData');

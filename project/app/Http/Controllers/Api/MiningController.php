@@ -2,33 +2,26 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\MiningRequest;
-use App\Http\Resources\MiningResource;
-use App\Repositories\MiningRepository;
+use App\Http\Controllers\Controller;
+use App\Jobs\MiningSeedJob;
 
 /**
  * Class MiningController
  * @package App\Http\Controllers\Api
  */
-class MiningController extends CoreCRUDController
+class MiningController extends Controller
 {
     /**
-     * MiningController constructor.
+     * Generate random mining data
      *
-     * @param MiningRepository $repository
+     * @return \Illuminate\Http\Response
      */
-    public function __construct(MiningRepository $repository)
-    {
-        parent::__construct($repository);
-    }
+   public function generateData()
+   {
+       MiningSeedJob::dispatch();
 
-    protected function requestClass(): string
-    {
-        return MiningRequest::class;
-    }
-
-    protected function resourceClass(): string
-    {
-        return MiningResource::class;
-    }
+       return $this->serverResponse()
+           ->data([])
+           ->send();
+   }
 }
