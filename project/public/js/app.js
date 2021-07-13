@@ -422,6 +422,335 @@ function _unsupportedIterableToArray(o, minLen) {
 
 /***/ }),
 
+/***/ "./node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js":
+/*!***********************************************************************!*\
+  !*** ./node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js ***!
+  \***********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _emotion_sheet__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @emotion/sheet */ "./node_modules/@emotion/sheet/dist/emotion-sheet.browser.esm.js");
+/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Tokenizer.js");
+/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Utility.js");
+/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Middleware.js");
+/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Serializer.js");
+/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Enum.js");
+/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Parser.js");
+/* harmony import */ var _emotion_weak_memoize__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @emotion/weak-memoize */ "./node_modules/@emotion/weak-memoize/dist/weak-memoize.browser.esm.js");
+/* harmony import */ var _emotion_memoize__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @emotion/memoize */ "./node_modules/@emotion/memoize/dist/emotion-memoize.browser.esm.js");
+
+
+
+
+
+var last = function last(arr) {
+  return arr.length ? arr[arr.length - 1] : null;
+};
+
+var toRules = function toRules(parsed, points) {
+  // pretend we've started with a comma
+  var index = -1;
+  var character = 44;
+
+  do {
+    switch ((0,stylis__WEBPACK_IMPORTED_MODULE_3__.token)(character)) {
+      case 0:
+        // &\f
+        if (character === 38 && (0,stylis__WEBPACK_IMPORTED_MODULE_3__.peek)() === 12) {
+          // this is not 100% correct, we don't account for literal sequences here - like for example quoted strings
+          // stylis inserts \f after & to know when & where it should replace this sequence with the context selector
+          // and when it should just concatenate the outer and inner selectors
+          // it's very unlikely for this sequence to actually appear in a different context, so we just leverage this fact here
+          points[index] = 1;
+        }
+
+        parsed[index] += (0,stylis__WEBPACK_IMPORTED_MODULE_3__.identifier)(stylis__WEBPACK_IMPORTED_MODULE_3__.position - 1);
+        break;
+
+      case 2:
+        parsed[index] += (0,stylis__WEBPACK_IMPORTED_MODULE_3__.delimit)(character);
+        break;
+
+      case 4:
+        // comma
+        if (character === 44) {
+          // colon
+          parsed[++index] = (0,stylis__WEBPACK_IMPORTED_MODULE_3__.peek)() === 58 ? '&\f' : '';
+          points[index] = parsed[index].length;
+          break;
+        }
+
+      // fallthrough
+
+      default:
+        parsed[index] += (0,stylis__WEBPACK_IMPORTED_MODULE_4__.from)(character);
+    }
+  } while (character = (0,stylis__WEBPACK_IMPORTED_MODULE_3__.next)());
+
+  return parsed;
+};
+
+var getRules = function getRules(value, points) {
+  return (0,stylis__WEBPACK_IMPORTED_MODULE_3__.dealloc)(toRules((0,stylis__WEBPACK_IMPORTED_MODULE_3__.alloc)(value), points));
+}; // WeakSet would be more appropriate, but only WeakMap is supported in IE11
+
+
+var fixedElements = /* #__PURE__ */new WeakMap();
+var compat = function compat(element) {
+  if (element.type !== 'rule' || !element.parent || // .length indicates if this rule contains pseudo or not
+  !element.length) {
+    return;
+  }
+
+  var value = element.value,
+      parent = element.parent;
+  var isImplicitRule = element.column === parent.column && element.line === parent.line;
+
+  while (parent.type !== 'rule') {
+    parent = parent.parent;
+    if (!parent) return;
+  } // short-circuit for the simplest case
+
+
+  if (element.props.length === 1 && value.charCodeAt(0) !== 58
+  /* colon */
+  && !fixedElements.get(parent)) {
+    return;
+  } // if this is an implicitly inserted rule (the one eagerly inserted at the each new nested level)
+  // then the props has already been manipulated beforehand as they that array is shared between it and its "rule parent"
+
+
+  if (isImplicitRule) {
+    return;
+  }
+
+  fixedElements.set(element, true);
+  var points = [];
+  var rules = getRules(value, points);
+  var parentRules = parent.props;
+
+  for (var i = 0, k = 0; i < rules.length; i++) {
+    for (var j = 0; j < parentRules.length; j++, k++) {
+      element.props[k] = points[i] ? rules[i].replace(/&\f/g, parentRules[j]) : parentRules[j] + " " + rules[i];
+    }
+  }
+};
+var removeLabel = function removeLabel(element) {
+  if (element.type === 'decl') {
+    var value = element.value;
+
+    if ( // charcode for l
+    value.charCodeAt(0) === 108 && // charcode for b
+    value.charCodeAt(2) === 98) {
+      // this ignores label
+      element["return"] = '';
+      element.value = '';
+    }
+  }
+};
+var ignoreFlag = 'emotion-disable-server-rendering-unsafe-selector-warning-please-do-not-use-this-the-warning-exists-for-a-reason';
+
+var isIgnoringComment = function isIgnoringComment(element) {
+  return !!element && element.type === 'comm' && element.children.indexOf(ignoreFlag) > -1;
+};
+
+var createUnsafeSelectorsAlarm = function createUnsafeSelectorsAlarm(cache) {
+  return function (element, index, children) {
+    if (element.type !== 'rule') return;
+    var unsafePseudoClasses = element.value.match(/(:first|:nth|:nth-last)-child/g);
+
+    if (unsafePseudoClasses && cache.compat !== true) {
+      var prevElement = index > 0 ? children[index - 1] : null;
+
+      if (prevElement && isIgnoringComment(last(prevElement.children))) {
+        return;
+      }
+
+      unsafePseudoClasses.forEach(function (unsafePseudoClass) {
+        console.error("The pseudo class \"" + unsafePseudoClass + "\" is potentially unsafe when doing server-side rendering. Try changing it to \"" + unsafePseudoClass.split('-child')[0] + "-of-type\".");
+      });
+    }
+  };
+};
+
+var isImportRule = function isImportRule(element) {
+  return element.type.charCodeAt(1) === 105 && element.type.charCodeAt(0) === 64;
+};
+
+var isPrependedWithRegularRules = function isPrependedWithRegularRules(index, children) {
+  for (var i = index - 1; i >= 0; i--) {
+    if (!isImportRule(children[i])) {
+      return true;
+    }
+  }
+
+  return false;
+}; // use this to remove incorrect elements from further processing
+// so they don't get handed to the `sheet` (or anything else)
+// as that could potentially lead to additional logs which in turn could be overhelming to the user
+
+
+var nullifyElement = function nullifyElement(element) {
+  element.type = '';
+  element.value = '';
+  element["return"] = '';
+  element.children = '';
+  element.props = '';
+};
+
+var incorrectImportAlarm = function incorrectImportAlarm(element, index, children) {
+  if (!isImportRule(element)) {
+    return;
+  }
+
+  if (element.parent) {
+    console.error("`@import` rules can't be nested inside other rules. Please move it to the top level and put it before regular rules. Keep in mind that they can only be used within global styles.");
+    nullifyElement(element);
+  } else if (isPrependedWithRegularRules(index, children)) {
+    console.error("`@import` rules can't be after other rules. Please put your `@import` rules before your other rules.");
+    nullifyElement(element);
+  }
+};
+
+var defaultStylisPlugins = [stylis__WEBPACK_IMPORTED_MODULE_5__.prefixer];
+
+var createCache = function createCache(options) {
+  var key = options.key;
+
+  if ( true && !key) {
+    throw new Error("You have to configure `key` for your cache. Please make sure it's unique (and not equal to 'css') as it's used for linking styles to your cache.\n" + "If multiple caches share the same key they might \"fight\" for each other's style elements.");
+  }
+
+  if ( key === 'css') {
+    var ssrStyles = document.querySelectorAll("style[data-emotion]:not([data-s])"); // get SSRed styles out of the way of React's hydration
+    // document.head is a safe place to move them to(though note document.head is not necessarily the last place they will be)
+    // note this very very intentionally targets all style elements regardless of the key to ensure
+    // that creating a cache works inside of render of a React component
+
+    Array.prototype.forEach.call(ssrStyles, function (node) {
+      // we want to only move elements which have a space in the data-emotion attribute value
+      // because that indicates that it is an Emotion 11 server-side rendered style elements
+      // while we will already ignore Emotion 11 client-side inserted styles because of the :not([data-s]) part in the selector
+      // Emotion 10 client-side inserted styles did not have data-s (but importantly did not have a space in their data-emotion attributes)
+      // so checking for the space ensures that loading Emotion 11 after Emotion 10 has inserted some styles
+      // will not result in the Emotion 10 styles being destroyed
+      var dataEmotionAttribute = node.getAttribute('data-emotion');
+
+      if (dataEmotionAttribute.indexOf(' ') === -1) {
+        return;
+      }
+      document.head.appendChild(node);
+      node.setAttribute('data-s', '');
+    });
+  }
+
+  var stylisPlugins = options.stylisPlugins || defaultStylisPlugins;
+
+  if (true) {
+    // $FlowFixMe
+    if (/[^a-z-]/.test(key)) {
+      throw new Error("Emotion key must only contain lower case alphabetical characters and - but \"" + key + "\" was passed");
+    }
+  }
+
+  var inserted = {}; // $FlowFixMe
+
+  var container;
+  var nodesToHydrate = [];
+
+  {
+    container = options.container || document.head;
+    Array.prototype.forEach.call( // this means we will ignore elements which don't have a space in them which
+    // means that the style elements we're looking at are only Emotion 11 server-rendered style elements
+    document.querySelectorAll("style[data-emotion^=\"" + key + " \"]"), function (node) {
+      var attrib = node.getAttribute("data-emotion").split(' '); // $FlowFixMe
+
+      for (var i = 1; i < attrib.length; i++) {
+        inserted[attrib[i]] = true;
+      }
+
+      nodesToHydrate.push(node);
+    });
+  }
+
+  var _insert;
+
+  var omnipresentPlugins = [compat, removeLabel];
+
+  if (true) {
+    omnipresentPlugins.push(createUnsafeSelectorsAlarm({
+      get compat() {
+        return cache.compat;
+      }
+
+    }), incorrectImportAlarm);
+  }
+
+  {
+    var currentSheet;
+    var finalizingPlugins = [stylis__WEBPACK_IMPORTED_MODULE_6__.stringify,  true ? function (element) {
+      if (!element.root) {
+        if (element["return"]) {
+          currentSheet.insert(element["return"]);
+        } else if (element.value && element.type !== stylis__WEBPACK_IMPORTED_MODULE_7__.COMMENT) {
+          // insert empty rule in non-production environments
+          // so @emotion/jest can grab `key` from the (JS)DOM for caches without any rules inserted yet
+          currentSheet.insert(element.value + "{}");
+        }
+      }
+    } : 0];
+    var serializer = (0,stylis__WEBPACK_IMPORTED_MODULE_5__.middleware)(omnipresentPlugins.concat(stylisPlugins, finalizingPlugins));
+
+    var stylis = function stylis(styles) {
+      return (0,stylis__WEBPACK_IMPORTED_MODULE_6__.serialize)((0,stylis__WEBPACK_IMPORTED_MODULE_8__.compile)(styles), serializer);
+    };
+
+    _insert = function insert(selector, serialized, sheet, shouldCache) {
+      currentSheet = sheet;
+
+      if ( true && serialized.map !== undefined) {
+        currentSheet = {
+          insert: function insert(rule) {
+            sheet.insert(rule + serialized.map);
+          }
+        };
+      }
+
+      stylis(selector ? selector + "{" + serialized.styles + "}" : serialized.styles);
+
+      if (shouldCache) {
+        cache.inserted[serialized.name] = true;
+      }
+    };
+  }
+
+  var cache = {
+    key: key,
+    sheet: new _emotion_sheet__WEBPACK_IMPORTED_MODULE_0__.StyleSheet({
+      key: key,
+      container: container,
+      nonce: options.nonce,
+      speedy: options.speedy,
+      prepend: options.prepend
+    }),
+    nonce: options.nonce,
+    inserted: inserted,
+    registered: {},
+    insert: _insert
+  };
+  cache.sheet.hydrate(nodesToHydrate);
+  return cache;
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (createCache);
+
+
+/***/ }),
+
 /***/ "./node_modules/@emotion/hash/dist/hash.browser.esm.js":
 /*!*************************************************************!*\
   !*** ./node_modules/@emotion/hash/dist/hash.browser.esm.js ***!
@@ -492,10 +821,10 @@ function murmur2(str) {
 
 /***/ }),
 
-/***/ "./node_modules/@emotion/memoize/dist/memoize.browser.esm.js":
-/*!*******************************************************************!*\
-  !*** ./node_modules/@emotion/memoize/dist/memoize.browser.esm.js ***!
-  \*******************************************************************/
+/***/ "./node_modules/@emotion/memoize/dist/emotion-memoize.browser.esm.js":
+/*!***************************************************************************!*\
+  !*** ./node_modules/@emotion/memoize/dist/emotion-memoize.browser.esm.js ***!
+  \***************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -504,7 +833,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 function memoize(fn) {
-  var cache = {};
+  var cache = Object.create(null);
   return function (arg) {
     if (cache[arg] === undefined) cache[arg] = fn(arg);
     return cache[arg];
@@ -536,12 +865,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "w": () => (/* binding */ withEmotionCache)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _emotion_cache__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @emotion/cache */ "./node_modules/@emotion/react/node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js");
+/* harmony import */ var _emotion_cache__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @emotion/cache */ "./node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js");
 /* harmony import */ var _babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/esm/extends */ "./node_modules/@babel/runtime/helpers/esm/extends.js");
 /* harmony import */ var _emotion_weak_memoize__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @emotion/weak-memoize */ "./node_modules/@emotion/weak-memoize/dist/weak-memoize.browser.esm.js");
 /* harmony import */ var _isolated_hoist_non_react_statics_do_not_use_this_in_your_code_dist_emotion_react_isolated_hoist_non_react_statics_do_not_use_this_in_your_code_browser_esm_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../isolated-hoist-non-react-statics-do-not-use-this-in-your-code/dist/emotion-react-isolated-hoist-non-react-statics-do-not-use-this-in-your-code.browser.esm.js */ "./node_modules/@emotion/react/isolated-hoist-non-react-statics-do-not-use-this-in-your-code/dist/emotion-react-isolated-hoist-non-react-statics-do-not-use-this-in-your-code.browser.esm.js");
-/* harmony import */ var _emotion_utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @emotion/utils */ "./node_modules/@emotion/react/node_modules/@emotion/utils/dist/emotion-utils.browser.esm.js");
-/* harmony import */ var _emotion_serialize__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @emotion/serialize */ "./node_modules/@emotion/react/node_modules/@emotion/serialize/dist/emotion-serialize.browser.esm.js");
+/* harmony import */ var _emotion_utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @emotion/utils */ "./node_modules/@emotion/utils/dist/emotion-utils.browser.esm.js");
+/* harmony import */ var _emotion_serialize__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @emotion/serialize */ "./node_modules/@emotion/serialize/dist/emotion-serialize.browser.esm.js");
 
 
 
@@ -750,15 +1079,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "keyframes": () => (/* binding */ keyframes)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _emotion_cache__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @emotion/cache */ "./node_modules/@emotion/react/node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js");
+/* harmony import */ var _emotion_cache__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @emotion/cache */ "./node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js");
 /* harmony import */ var _emotion_element_a8309070_browser_esm_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./emotion-element-a8309070.browser.esm.js */ "./node_modules/@emotion/react/dist/emotion-element-a8309070.browser.esm.js");
 /* harmony import */ var _babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime/helpers/extends */ "./node_modules/@babel/runtime/helpers/esm/extends.js");
 /* harmony import */ var _emotion_weak_memoize__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @emotion/weak-memoize */ "./node_modules/@emotion/weak-memoize/dist/weak-memoize.browser.esm.js");
 /* harmony import */ var hoist_non_react_statics__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! hoist-non-react-statics */ "./node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js");
 /* harmony import */ var hoist_non_react_statics__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(hoist_non_react_statics__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _emotion_utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @emotion/utils */ "./node_modules/@emotion/react/node_modules/@emotion/utils/dist/emotion-utils.browser.esm.js");
-/* harmony import */ var _emotion_serialize__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @emotion/serialize */ "./node_modules/@emotion/react/node_modules/@emotion/serialize/dist/emotion-serialize.browser.esm.js");
-/* harmony import */ var _emotion_sheet__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @emotion/sheet */ "./node_modules/@emotion/react/node_modules/@emotion/sheet/dist/emotion-sheet.browser.esm.js");
+/* harmony import */ var _emotion_utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @emotion/utils */ "./node_modules/@emotion/utils/dist/emotion-utils.browser.esm.js");
+/* harmony import */ var _emotion_serialize__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @emotion/serialize */ "./node_modules/@emotion/serialize/dist/emotion-serialize.browser.esm.js");
+/* harmony import */ var _emotion_sheet__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @emotion/sheet */ "./node_modules/@emotion/sheet/dist/emotion-sheet.browser.esm.js");
 
 
 
@@ -1131,339 +1460,10 @@ var hoistNonReactStatics = (function (targetComponent, sourceComponent) {
 
 /***/ }),
 
-/***/ "./node_modules/@emotion/react/node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js":
-/*!***************************************************************************************************!*\
-  !*** ./node_modules/@emotion/react/node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js ***!
-  \***************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _emotion_sheet__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @emotion/sheet */ "./node_modules/@emotion/react/node_modules/@emotion/sheet/dist/emotion-sheet.browser.esm.js");
-/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Tokenizer.js");
-/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Utility.js");
-/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Middleware.js");
-/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Serializer.js");
-/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Enum.js");
-/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Parser.js");
-/* harmony import */ var _emotion_weak_memoize__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @emotion/weak-memoize */ "./node_modules/@emotion/weak-memoize/dist/weak-memoize.browser.esm.js");
-/* harmony import */ var _emotion_memoize__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @emotion/memoize */ "./node_modules/@emotion/memoize/dist/memoize.browser.esm.js");
-
-
-
-
-
-var last = function last(arr) {
-  return arr.length ? arr[arr.length - 1] : null;
-};
-
-var toRules = function toRules(parsed, points) {
-  // pretend we've started with a comma
-  var index = -1;
-  var character = 44;
-
-  do {
-    switch ((0,stylis__WEBPACK_IMPORTED_MODULE_3__.token)(character)) {
-      case 0:
-        // &\f
-        if (character === 38 && (0,stylis__WEBPACK_IMPORTED_MODULE_3__.peek)() === 12) {
-          // this is not 100% correct, we don't account for literal sequences here - like for example quoted strings
-          // stylis inserts \f after & to know when & where it should replace this sequence with the context selector
-          // and when it should just concatenate the outer and inner selectors
-          // it's very unlikely for this sequence to actually appear in a different context, so we just leverage this fact here
-          points[index] = 1;
-        }
-
-        parsed[index] += (0,stylis__WEBPACK_IMPORTED_MODULE_3__.identifier)(stylis__WEBPACK_IMPORTED_MODULE_3__.position - 1);
-        break;
-
-      case 2:
-        parsed[index] += (0,stylis__WEBPACK_IMPORTED_MODULE_3__.delimit)(character);
-        break;
-
-      case 4:
-        // comma
-        if (character === 44) {
-          // colon
-          parsed[++index] = (0,stylis__WEBPACK_IMPORTED_MODULE_3__.peek)() === 58 ? '&\f' : '';
-          points[index] = parsed[index].length;
-          break;
-        }
-
-      // fallthrough
-
-      default:
-        parsed[index] += (0,stylis__WEBPACK_IMPORTED_MODULE_4__.from)(character);
-    }
-  } while (character = (0,stylis__WEBPACK_IMPORTED_MODULE_3__.next)());
-
-  return parsed;
-};
-
-var getRules = function getRules(value, points) {
-  return (0,stylis__WEBPACK_IMPORTED_MODULE_3__.dealloc)(toRules((0,stylis__WEBPACK_IMPORTED_MODULE_3__.alloc)(value), points));
-}; // WeakSet would be more appropriate, but only WeakMap is supported in IE11
-
-
-var fixedElements = /* #__PURE__ */new WeakMap();
-var compat = function compat(element) {
-  if (element.type !== 'rule' || !element.parent || // .length indicates if this rule contains pseudo or not
-  !element.length) {
-    return;
-  }
-
-  var value = element.value,
-      parent = element.parent;
-  var isImplicitRule = element.column === parent.column && element.line === parent.line;
-
-  while (parent.type !== 'rule') {
-    parent = parent.parent;
-    if (!parent) return;
-  } // short-circuit for the simplest case
-
-
-  if (element.props.length === 1 && value.charCodeAt(0) !== 58
-  /* colon */
-  && !fixedElements.get(parent)) {
-    return;
-  } // if this is an implicitly inserted rule (the one eagerly inserted at the each new nested level)
-  // then the props has already been manipulated beforehand as they that array is shared between it and its "rule parent"
-
-
-  if (isImplicitRule) {
-    return;
-  }
-
-  fixedElements.set(element, true);
-  var points = [];
-  var rules = getRules(value, points);
-  var parentRules = parent.props;
-
-  for (var i = 0, k = 0; i < rules.length; i++) {
-    for (var j = 0; j < parentRules.length; j++, k++) {
-      element.props[k] = points[i] ? rules[i].replace(/&\f/g, parentRules[j]) : parentRules[j] + " " + rules[i];
-    }
-  }
-};
-var removeLabel = function removeLabel(element) {
-  if (element.type === 'decl') {
-    var value = element.value;
-
-    if ( // charcode for l
-    value.charCodeAt(0) === 108 && // charcode for b
-    value.charCodeAt(2) === 98) {
-      // this ignores label
-      element["return"] = '';
-      element.value = '';
-    }
-  }
-};
-var ignoreFlag = 'emotion-disable-server-rendering-unsafe-selector-warning-please-do-not-use-this-the-warning-exists-for-a-reason';
-
-var isIgnoringComment = function isIgnoringComment(element) {
-  return !!element && element.type === 'comm' && element.children.indexOf(ignoreFlag) > -1;
-};
-
-var createUnsafeSelectorsAlarm = function createUnsafeSelectorsAlarm(cache) {
-  return function (element, index, children) {
-    if (element.type !== 'rule') return;
-    var unsafePseudoClasses = element.value.match(/(:first|:nth|:nth-last)-child/g);
-
-    if (unsafePseudoClasses && cache.compat !== true) {
-      var prevElement = index > 0 ? children[index - 1] : null;
-
-      if (prevElement && isIgnoringComment(last(prevElement.children))) {
-        return;
-      }
-
-      unsafePseudoClasses.forEach(function (unsafePseudoClass) {
-        console.error("The pseudo class \"" + unsafePseudoClass + "\" is potentially unsafe when doing server-side rendering. Try changing it to \"" + unsafePseudoClass.split('-child')[0] + "-of-type\".");
-      });
-    }
-  };
-};
-
-var isImportRule = function isImportRule(element) {
-  return element.type.charCodeAt(1) === 105 && element.type.charCodeAt(0) === 64;
-};
-
-var isPrependedWithRegularRules = function isPrependedWithRegularRules(index, children) {
-  for (var i = index - 1; i >= 0; i--) {
-    if (!isImportRule(children[i])) {
-      return true;
-    }
-  }
-
-  return false;
-}; // use this to remove incorrect elements from further processing
-// so they don't get handed to the `sheet` (or anything else)
-// as that could potentially lead to additional logs which in turn could be overhelming to the user
-
-
-var nullifyElement = function nullifyElement(element) {
-  element.type = '';
-  element.value = '';
-  element["return"] = '';
-  element.children = '';
-  element.props = '';
-};
-
-var incorrectImportAlarm = function incorrectImportAlarm(element, index, children) {
-  if (!isImportRule(element)) {
-    return;
-  }
-
-  if (element.parent) {
-    console.error("`@import` rules can't be nested inside other rules. Please move it to the top level and put it before regular rules. Keep in mind that they can only be used within global styles.");
-    nullifyElement(element);
-  } else if (isPrependedWithRegularRules(index, children)) {
-    console.error("`@import` rules can't be after other rules. Please put your `@import` rules before your other rules.");
-    nullifyElement(element);
-  }
-};
-
-var defaultStylisPlugins = [stylis__WEBPACK_IMPORTED_MODULE_5__.prefixer];
-
-var createCache = function createCache(options) {
-  var key = options.key;
-
-  if ( true && !key) {
-    throw new Error("You have to configure `key` for your cache. Please make sure it's unique (and not equal to 'css') as it's used for linking styles to your cache.\n" + "If multiple caches share the same key they might \"fight\" for each other's style elements.");
-  }
-
-  if ( key === 'css') {
-    var ssrStyles = document.querySelectorAll("style[data-emotion]:not([data-s])"); // get SSRed styles out of the way of React's hydration
-    // document.head is a safe place to move them to(though note document.head is not necessarily the last place they will be)
-    // note this very very intentionally targets all style elements regardless of the key to ensure
-    // that creating a cache works inside of render of a React component
-
-    Array.prototype.forEach.call(ssrStyles, function (node) {
-      // we want to only move elements which have a space in the data-emotion attribute value
-      // because that indicates that it is an Emotion 11 server-side rendered style elements
-      // while we will already ignore Emotion 11 client-side inserted styles because of the :not([data-s]) part in the selector
-      // Emotion 10 client-side inserted styles did not have data-s (but importantly did not have a space in their data-emotion attributes)
-      // so checking for the space ensures that loading Emotion 11 after Emotion 10 has inserted some styles
-      // will not result in the Emotion 10 styles being destroyed
-      var dataEmotionAttribute = node.getAttribute('data-emotion');
-
-      if (dataEmotionAttribute.indexOf(' ') === -1) {
-        return;
-      }
-      document.head.appendChild(node);
-      node.setAttribute('data-s', '');
-    });
-  }
-
-  var stylisPlugins = options.stylisPlugins || defaultStylisPlugins;
-
-  if (true) {
-    // $FlowFixMe
-    if (/[^a-z-]/.test(key)) {
-      throw new Error("Emotion key must only contain lower case alphabetical characters and - but \"" + key + "\" was passed");
-    }
-  }
-
-  var inserted = {}; // $FlowFixMe
-
-  var container;
-  var nodesToHydrate = [];
-
-  {
-    container = options.container || document.head;
-    Array.prototype.forEach.call( // this means we will ignore elements which don't have a space in them which
-    // means that the style elements we're looking at are only Emotion 11 server-rendered style elements
-    document.querySelectorAll("style[data-emotion^=\"" + key + " \"]"), function (node) {
-      var attrib = node.getAttribute("data-emotion").split(' '); // $FlowFixMe
-
-      for (var i = 1; i < attrib.length; i++) {
-        inserted[attrib[i]] = true;
-      }
-
-      nodesToHydrate.push(node);
-    });
-  }
-
-  var _insert;
-
-  var omnipresentPlugins = [compat, removeLabel];
-
-  if (true) {
-    omnipresentPlugins.push(createUnsafeSelectorsAlarm({
-      get compat() {
-        return cache.compat;
-      }
-
-    }), incorrectImportAlarm);
-  }
-
-  {
-    var currentSheet;
-    var finalizingPlugins = [stylis__WEBPACK_IMPORTED_MODULE_6__.stringify,  true ? function (element) {
-      if (!element.root) {
-        if (element["return"]) {
-          currentSheet.insert(element["return"]);
-        } else if (element.value && element.type !== stylis__WEBPACK_IMPORTED_MODULE_7__.COMMENT) {
-          // insert empty rule in non-production environments
-          // so @emotion/jest can grab `key` from the (JS)DOM for caches without any rules inserted yet
-          currentSheet.insert(element.value + "{}");
-        }
-      }
-    } : 0];
-    var serializer = (0,stylis__WEBPACK_IMPORTED_MODULE_5__.middleware)(omnipresentPlugins.concat(stylisPlugins, finalizingPlugins));
-
-    var stylis = function stylis(styles) {
-      return (0,stylis__WEBPACK_IMPORTED_MODULE_6__.serialize)((0,stylis__WEBPACK_IMPORTED_MODULE_8__.compile)(styles), serializer);
-    };
-
-    _insert = function insert(selector, serialized, sheet, shouldCache) {
-      currentSheet = sheet;
-
-      if ( true && serialized.map !== undefined) {
-        currentSheet = {
-          insert: function insert(rule) {
-            sheet.insert(rule + serialized.map);
-          }
-        };
-      }
-
-      stylis(selector ? selector + "{" + serialized.styles + "}" : serialized.styles);
-
-      if (shouldCache) {
-        cache.inserted[serialized.name] = true;
-      }
-    };
-  }
-
-  var cache = {
-    key: key,
-    sheet: new _emotion_sheet__WEBPACK_IMPORTED_MODULE_0__.StyleSheet({
-      key: key,
-      container: container,
-      nonce: options.nonce,
-      speedy: options.speedy,
-      prepend: options.prepend
-    }),
-    nonce: options.nonce,
-    inserted: inserted,
-    registered: {},
-    insert: _insert
-  };
-  cache.sheet.hydrate(nodesToHydrate);
-  return cache;
-};
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (createCache);
-
-
-/***/ }),
-
-/***/ "./node_modules/@emotion/react/node_modules/@emotion/serialize/dist/emotion-serialize.browser.esm.js":
-/*!***********************************************************************************************************!*\
-  !*** ./node_modules/@emotion/react/node_modules/@emotion/serialize/dist/emotion-serialize.browser.esm.js ***!
-  \***********************************************************************************************************/
+/***/ "./node_modules/@emotion/serialize/dist/emotion-serialize.browser.esm.js":
+/*!*******************************************************************************!*\
+  !*** ./node_modules/@emotion/serialize/dist/emotion-serialize.browser.esm.js ***!
+  \*******************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -1473,7 +1473,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _emotion_hash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @emotion/hash */ "./node_modules/@emotion/hash/dist/hash.browser.esm.js");
 /* harmony import */ var _emotion_unitless__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @emotion/unitless */ "./node_modules/@emotion/unitless/dist/unitless.browser.esm.js");
-/* harmony import */ var _emotion_memoize__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @emotion/memoize */ "./node_modules/@emotion/memoize/dist/memoize.browser.esm.js");
+/* harmony import */ var _emotion_memoize__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @emotion/memoize */ "./node_modules/@emotion/memoize/dist/emotion-memoize.browser.esm.js");
 
 
 
@@ -1792,10 +1792,10 @@ var serializeStyles = function serializeStyles(args, registered, mergedProps) {
 
 /***/ }),
 
-/***/ "./node_modules/@emotion/react/node_modules/@emotion/sheet/dist/emotion-sheet.browser.esm.js":
-/*!***************************************************************************************************!*\
-  !*** ./node_modules/@emotion/react/node_modules/@emotion/sheet/dist/emotion-sheet.browser.esm.js ***!
-  \***************************************************************************************************/
+/***/ "./node_modules/@emotion/sheet/dist/emotion-sheet.browser.esm.js":
+/*!***********************************************************************!*\
+  !*** ./node_modules/@emotion/sheet/dist/emotion-sheet.browser.esm.js ***!
+  \***********************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -1953,62 +1953,6 @@ var StyleSheet = /*#__PURE__*/function () {
 
 /***/ }),
 
-/***/ "./node_modules/@emotion/react/node_modules/@emotion/utils/dist/emotion-utils.browser.esm.js":
-/*!***************************************************************************************************!*\
-  !*** ./node_modules/@emotion/react/node_modules/@emotion/utils/dist/emotion-utils.browser.esm.js ***!
-  \***************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "getRegisteredStyles": () => (/* binding */ getRegisteredStyles),
-/* harmony export */   "insertStyles": () => (/* binding */ insertStyles)
-/* harmony export */ });
-var isBrowser = "object" !== 'undefined';
-function getRegisteredStyles(registered, registeredStyles, classNames) {
-  var rawClassName = '';
-  classNames.split(' ').forEach(function (className) {
-    if (registered[className] !== undefined) {
-      registeredStyles.push(registered[className] + ";");
-    } else {
-      rawClassName += className + " ";
-    }
-  });
-  return rawClassName;
-}
-var insertStyles = function insertStyles(cache, serialized, isStringTag) {
-  var className = cache.key + "-" + serialized.name;
-
-  if ( // we only need to add the styles to the registered cache if the
-  // class name could be used further down
-  // the tree but if it's a string tag, we know it won't
-  // so we don't have to add it to registered cache.
-  // this improves memory usage since we can avoid storing the whole style string
-  (isStringTag === false || // we need to always store it if we're in compat mode and
-  // in node since emotion-server relies on whether a style is in
-  // the registered cache to know whether a style is global or not
-  // also, note that this check will be dead code eliminated in the browser
-  isBrowser === false ) && cache.registered[className] === undefined) {
-    cache.registered[className] = serialized.styles;
-  }
-
-  if (cache.inserted[serialized.name] === undefined) {
-    var current = serialized;
-
-    do {
-      var maybeStyles = cache.insert(serialized === current ? "." + className : '', current, cache.sheet, true);
-
-      current = current.next;
-    } while (current !== undefined);
-  }
-};
-
-
-
-
-/***/ }),
-
 /***/ "./node_modules/@emotion/unitless/dist/unitless.browser.esm.js":
 /*!*********************************************************************!*\
   !*** ./node_modules/@emotion/unitless/dist/unitless.browser.esm.js ***!
@@ -2070,6 +2014,62 @@ var unitlessKeys = {
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (unitlessKeys);
+
+
+/***/ }),
+
+/***/ "./node_modules/@emotion/utils/dist/emotion-utils.browser.esm.js":
+/*!***********************************************************************!*\
+  !*** ./node_modules/@emotion/utils/dist/emotion-utils.browser.esm.js ***!
+  \***********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "getRegisteredStyles": () => (/* binding */ getRegisteredStyles),
+/* harmony export */   "insertStyles": () => (/* binding */ insertStyles)
+/* harmony export */ });
+var isBrowser = "object" !== 'undefined';
+function getRegisteredStyles(registered, registeredStyles, classNames) {
+  var rawClassName = '';
+  classNames.split(' ').forEach(function (className) {
+    if (registered[className] !== undefined) {
+      registeredStyles.push(registered[className] + ";");
+    } else {
+      rawClassName += className + " ";
+    }
+  });
+  return rawClassName;
+}
+var insertStyles = function insertStyles(cache, serialized, isStringTag) {
+  var className = cache.key + "-" + serialized.name;
+
+  if ( // we only need to add the styles to the registered cache if the
+  // class name could be used further down
+  // the tree but if it's a string tag, we know it won't
+  // so we don't have to add it to registered cache.
+  // this improves memory usage since we can avoid storing the whole style string
+  (isStringTag === false || // we need to always store it if we're in compat mode and
+  // in node since emotion-server relies on whether a style is in
+  // the registered cache to know whether a style is global or not
+  // also, note that this check will be dead code eliminated in the browser
+  isBrowser === false ) && cache.registered[className] === undefined) {
+    cache.registered[className] = serialized.styles;
+  }
+
+  if (cache.inserted[serialized.name] === undefined) {
+    var current = serialized;
+
+    do {
+      var maybeStyles = cache.insert(serialized === current ? "." + className : '', current, cache.sheet, true);
+
+      current = current.next;
+    } while (current !== undefined);
+  }
+};
+
+
 
 
 /***/ }),
@@ -7054,14 +7054,16 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
-/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router/esm/react-router.js");
+/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router/esm/react-router.js");
 /* harmony import */ var _components_Nav__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/Nav */ "./resources/js/src/components/Nav.js");
 /* harmony import */ var _companies_Companies__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./companies/Companies */ "./resources/js/src/companies/Companies.js");
 /* harmony import */ var _home__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./home */ "./resources/js/src/home/index.js");
 /* harmony import */ var _countries_Countries__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./countries/Countries */ "./resources/js/src/countries/Countries.js");
 /* harmony import */ var _leader_Leader__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./leader/Leader */ "./resources/js/src/leader/Leader.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+/* harmony import */ var _mining_Mining__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./mining/Mining */ "./resources/js/src/mining/Mining.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+
 
 
 
@@ -7074,27 +7076,31 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var App = function App() {
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)(react_router_dom__WEBPACK_IMPORTED_MODULE_8__.BrowserRouter, {
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_components_Nav__WEBPACK_IMPORTED_MODULE_2__.default, {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)(react_router_dom__WEBPACK_IMPORTED_MODULE_9__.BrowserRouter, {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(_components_Nav__WEBPACK_IMPORTED_MODULE_2__.default, {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)("div", {
       className: "container mt-3",
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)(react_router_dom__WEBPACK_IMPORTED_MODULE_9__.Switch, {
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_9__.Route, {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsxs)(react_router_dom__WEBPACK_IMPORTED_MODULE_10__.Switch, {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_10__.Route, {
           exact: true,
           path: "/",
           component: _home__WEBPACK_IMPORTED_MODULE_4__.default
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_9__.Route, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_10__.Route, {
           exact: true,
           path: "/companies",
           component: _companies_Companies__WEBPACK_IMPORTED_MODULE_3__.default
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_9__.Route, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_10__.Route, {
           exact: true,
           path: "/countries",
           component: _countries_Countries__WEBPACK_IMPORTED_MODULE_5__.default
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_9__.Route, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_10__.Route, {
           exact: true,
           path: "/leader",
           component: _leader_Leader__WEBPACK_IMPORTED_MODULE_6__.default
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_9__.Redirect, {
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_10__.Route, {
+          exact: true,
+          path: "/mining",
+          component: _mining_Mining__WEBPACK_IMPORTED_MODULE_7__.default
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_10__.Redirect, {
           from: "*",
           to: "/"
         })]
@@ -7103,7 +7109,7 @@ var App = function App() {
   });
 };
 
-react_dom__WEBPACK_IMPORTED_MODULE_1__.render( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(App, {}), document.getElementById('app'));
+react_dom__WEBPACK_IMPORTED_MODULE_1__.render( /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_8__.jsx)(App, {}), document.getElementById('app'));
 
 /***/ }),
 
@@ -7744,6 +7750,10 @@ var Nav = function Nav() {
         to: "/leader",
         className: "nav-item nav-link",
         children: "Leader"
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_2__.NavLink, {
+        to: "/mining",
+        className: "nav-item nav-link",
+        children: "Mining"
       })]
     })
   });
@@ -8581,6 +8591,185 @@ var List = /*#__PURE__*/function (_Component) {
 
 /***/ }),
 
+/***/ "./resources/js/src/mining/List.js":
+/*!*****************************************!*\
+  !*** ./resources/js/src/mining/List.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ List)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _services_MiningService__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../services/MiningService */ "./resources/js/src/services/MiningService.js");
+/* harmony import */ var _common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../common */ "./resources/js/src/common.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+
+
+
+
+
+
+var List = /*#__PURE__*/function (_Component) {
+  _inherits(List, _Component);
+
+  var _super = _createSuper(List);
+
+  function List(props) {
+    var _this;
+
+    _classCallCheck(this, List);
+
+    _this = _super.call(this, props);
+    _this.path = props.match.path;
+    _this.getMinings = _this.getMinings.bind(_assertThisInitialized(_this));
+    _this.state = {
+      minings: []
+    };
+    return _this;
+  }
+
+  _createClass(List, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.getMinings();
+    }
+  }, {
+    key: "getMinings",
+    value: function getMinings() {
+      var _this2 = this;
+
+      _services_MiningService__WEBPACK_IMPORTED_MODULE_1__.default.getAll().then(function (response) {
+        _this2.setState({
+          minings: response.data.data
+        });
+
+        console.log(response.data.data);
+      })["catch"](function (e) {
+        console.log(e);
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var minings = this.state.minings;
+      return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("table", {
+          className: "table table-striped",
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("thead", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("tr", {
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("th", {
+                scope: "col",
+                children: "Company"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("th", {
+                scope: "col",
+                children: "Date/Time"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("th", {
+                scope: "col",
+                children: "Mined"
+              })]
+            })
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("tbody", {
+            children: [minings && minings.map(function (mining, index) {
+              var _mining$relations, _mining$relations$com;
+
+              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("tr", {
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("td", {
+                  children: (_mining$relations = mining.relations) === null || _mining$relations === void 0 ? void 0 : (_mining$relations$com = _mining$relations.company) === null || _mining$relations$com === void 0 ? void 0 : _mining$relations$com.name
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("td", {
+                  children: new Date(mining.date_mined).toUTCString()
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("td", {
+                  children: (0,_common__WEBPACK_IMPORTED_MODULE_2__.default)(mining.mined)
+                })]
+              }, mining.id);
+            }), minings && !minings.length && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("tr", {
+              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("td", {
+                colSpan: "4",
+                className: "text-center",
+                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
+                  className: "p-2",
+                  children: "No mining to display"
+                })
+              })
+            })]
+          })]
+        })
+      });
+    }
+  }]);
+
+  return List;
+}(react__WEBPACK_IMPORTED_MODULE_0__.Component);
+
+
+;
+
+/***/ }),
+
+/***/ "./resources/js/src/mining/Mining.js":
+/*!*******************************************!*\
+  !*** ./resources/js/src/mining/Mining.js ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router/esm/react-router.js");
+/* harmony import */ var _List__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./List */ "./resources/js/src/mining/List.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+
+
+
+
+var Mining = function Mining(_ref) {
+  var match = _ref.match;
+  var path = match.path;
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_2__.BrowserRouter, {
+    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      className: "container mt-3",
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_3__.Switch, {
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(react_router_dom__WEBPACK_IMPORTED_MODULE_3__.Route, {
+          exact: true,
+          path: path,
+          component: _List__WEBPACK_IMPORTED_MODULE_0__.default
+        })
+      })
+    })
+  });
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Mining);
+
+/***/ }),
+
 /***/ "./resources/js/src/services/CompanyService.js":
 /*!*****************************************************!*\
   !*** ./resources/js/src/services/CompanyService.js ***!
@@ -8696,6 +8885,45 @@ var CountryService = /*#__PURE__*/function () {
 }();
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new CountryService());
+
+/***/ }),
+
+/***/ "./resources/js/src/services/MiningService.js":
+/*!****************************************************!*\
+  !*** ./resources/js/src/services/MiningService.js ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _http_common__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../http-common */ "./resources/js/src/http-common.js");
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+
+
+var MiningService = /*#__PURE__*/function () {
+  function MiningService() {
+    _classCallCheck(this, MiningService);
+  }
+
+  _createClass(MiningService, [{
+    key: "getAll",
+    value: function getAll() {
+      return _http_common__WEBPACK_IMPORTED_MODULE_0__.default.get("/mining");
+    }
+  }]);
+
+  return MiningService;
+}();
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new MiningService());
 
 /***/ }),
 
@@ -51370,6 +51598,455 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 /***/ }),
 
+/***/ "./node_modules/path-to-regexp/index.js":
+/*!**********************************************!*\
+  !*** ./node_modules/path-to-regexp/index.js ***!
+  \**********************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+var isarray = __webpack_require__(/*! isarray */ "./node_modules/path-to-regexp/node_modules/isarray/index.js")
+
+/**
+ * Expose `pathToRegexp`.
+ */
+module.exports = pathToRegexp
+module.exports.parse = parse
+module.exports.compile = compile
+module.exports.tokensToFunction = tokensToFunction
+module.exports.tokensToRegExp = tokensToRegExp
+
+/**
+ * The main path matching regexp utility.
+ *
+ * @type {RegExp}
+ */
+var PATH_REGEXP = new RegExp([
+  // Match escaped characters that would otherwise appear in future matches.
+  // This allows the user to escape special characters that won't transform.
+  '(\\\\.)',
+  // Match Express-style parameters and un-named parameters with a prefix
+  // and optional suffixes. Matches appear as:
+  //
+  // "/:test(\\d+)?" => ["/", "test", "\d+", undefined, "?", undefined]
+  // "/route(\\d+)"  => [undefined, undefined, undefined, "\d+", undefined, undefined]
+  // "/*"            => ["/", undefined, undefined, undefined, undefined, "*"]
+  '([\\/.])?(?:(?:\\:(\\w+)(?:\\(((?:\\\\.|[^\\\\()])+)\\))?|\\(((?:\\\\.|[^\\\\()])+)\\))([+*?])?|(\\*))'
+].join('|'), 'g')
+
+/**
+ * Parse a string for the raw tokens.
+ *
+ * @param  {string}  str
+ * @param  {Object=} options
+ * @return {!Array}
+ */
+function parse (str, options) {
+  var tokens = []
+  var key = 0
+  var index = 0
+  var path = ''
+  var defaultDelimiter = options && options.delimiter || '/'
+  var res
+
+  while ((res = PATH_REGEXP.exec(str)) != null) {
+    var m = res[0]
+    var escaped = res[1]
+    var offset = res.index
+    path += str.slice(index, offset)
+    index = offset + m.length
+
+    // Ignore already escaped sequences.
+    if (escaped) {
+      path += escaped[1]
+      continue
+    }
+
+    var next = str[index]
+    var prefix = res[2]
+    var name = res[3]
+    var capture = res[4]
+    var group = res[5]
+    var modifier = res[6]
+    var asterisk = res[7]
+
+    // Push the current path onto the tokens.
+    if (path) {
+      tokens.push(path)
+      path = ''
+    }
+
+    var partial = prefix != null && next != null && next !== prefix
+    var repeat = modifier === '+' || modifier === '*'
+    var optional = modifier === '?' || modifier === '*'
+    var delimiter = res[2] || defaultDelimiter
+    var pattern = capture || group
+
+    tokens.push({
+      name: name || key++,
+      prefix: prefix || '',
+      delimiter: delimiter,
+      optional: optional,
+      repeat: repeat,
+      partial: partial,
+      asterisk: !!asterisk,
+      pattern: pattern ? escapeGroup(pattern) : (asterisk ? '.*' : '[^' + escapeString(delimiter) + ']+?')
+    })
+  }
+
+  // Match any characters still remaining.
+  if (index < str.length) {
+    path += str.substr(index)
+  }
+
+  // If the path exists, push it onto the end.
+  if (path) {
+    tokens.push(path)
+  }
+
+  return tokens
+}
+
+/**
+ * Compile a string to a template function for the path.
+ *
+ * @param  {string}             str
+ * @param  {Object=}            options
+ * @return {!function(Object=, Object=)}
+ */
+function compile (str, options) {
+  return tokensToFunction(parse(str, options), options)
+}
+
+/**
+ * Prettier encoding of URI path segments.
+ *
+ * @param  {string}
+ * @return {string}
+ */
+function encodeURIComponentPretty (str) {
+  return encodeURI(str).replace(/[\/?#]/g, function (c) {
+    return '%' + c.charCodeAt(0).toString(16).toUpperCase()
+  })
+}
+
+/**
+ * Encode the asterisk parameter. Similar to `pretty`, but allows slashes.
+ *
+ * @param  {string}
+ * @return {string}
+ */
+function encodeAsterisk (str) {
+  return encodeURI(str).replace(/[?#]/g, function (c) {
+    return '%' + c.charCodeAt(0).toString(16).toUpperCase()
+  })
+}
+
+/**
+ * Expose a method for transforming tokens into the path function.
+ */
+function tokensToFunction (tokens, options) {
+  // Compile all the tokens into regexps.
+  var matches = new Array(tokens.length)
+
+  // Compile all the patterns before compilation.
+  for (var i = 0; i < tokens.length; i++) {
+    if (typeof tokens[i] === 'object') {
+      matches[i] = new RegExp('^(?:' + tokens[i].pattern + ')$', flags(options))
+    }
+  }
+
+  return function (obj, opts) {
+    var path = ''
+    var data = obj || {}
+    var options = opts || {}
+    var encode = options.pretty ? encodeURIComponentPretty : encodeURIComponent
+
+    for (var i = 0; i < tokens.length; i++) {
+      var token = tokens[i]
+
+      if (typeof token === 'string') {
+        path += token
+
+        continue
+      }
+
+      var value = data[token.name]
+      var segment
+
+      if (value == null) {
+        if (token.optional) {
+          // Prepend partial segment prefixes.
+          if (token.partial) {
+            path += token.prefix
+          }
+
+          continue
+        } else {
+          throw new TypeError('Expected "' + token.name + '" to be defined')
+        }
+      }
+
+      if (isarray(value)) {
+        if (!token.repeat) {
+          throw new TypeError('Expected "' + token.name + '" to not repeat, but received `' + JSON.stringify(value) + '`')
+        }
+
+        if (value.length === 0) {
+          if (token.optional) {
+            continue
+          } else {
+            throw new TypeError('Expected "' + token.name + '" to not be empty')
+          }
+        }
+
+        for (var j = 0; j < value.length; j++) {
+          segment = encode(value[j])
+
+          if (!matches[i].test(segment)) {
+            throw new TypeError('Expected all "' + token.name + '" to match "' + token.pattern + '", but received `' + JSON.stringify(segment) + '`')
+          }
+
+          path += (j === 0 ? token.prefix : token.delimiter) + segment
+        }
+
+        continue
+      }
+
+      segment = token.asterisk ? encodeAsterisk(value) : encode(value)
+
+      if (!matches[i].test(segment)) {
+        throw new TypeError('Expected "' + token.name + '" to match "' + token.pattern + '", but received "' + segment + '"')
+      }
+
+      path += token.prefix + segment
+    }
+
+    return path
+  }
+}
+
+/**
+ * Escape a regular expression string.
+ *
+ * @param  {string} str
+ * @return {string}
+ */
+function escapeString (str) {
+  return str.replace(/([.+*?=^!:${}()[\]|\/\\])/g, '\\$1')
+}
+
+/**
+ * Escape the capturing group by escaping special characters and meaning.
+ *
+ * @param  {string} group
+ * @return {string}
+ */
+function escapeGroup (group) {
+  return group.replace(/([=!:$\/()])/g, '\\$1')
+}
+
+/**
+ * Attach the keys as a property of the regexp.
+ *
+ * @param  {!RegExp} re
+ * @param  {Array}   keys
+ * @return {!RegExp}
+ */
+function attachKeys (re, keys) {
+  re.keys = keys
+  return re
+}
+
+/**
+ * Get the flags for a regexp from the options.
+ *
+ * @param  {Object} options
+ * @return {string}
+ */
+function flags (options) {
+  return options && options.sensitive ? '' : 'i'
+}
+
+/**
+ * Pull out keys from a regexp.
+ *
+ * @param  {!RegExp} path
+ * @param  {!Array}  keys
+ * @return {!RegExp}
+ */
+function regexpToRegexp (path, keys) {
+  // Use a negative lookahead to match only capturing groups.
+  var groups = path.source.match(/\((?!\?)/g)
+
+  if (groups) {
+    for (var i = 0; i < groups.length; i++) {
+      keys.push({
+        name: i,
+        prefix: null,
+        delimiter: null,
+        optional: false,
+        repeat: false,
+        partial: false,
+        asterisk: false,
+        pattern: null
+      })
+    }
+  }
+
+  return attachKeys(path, keys)
+}
+
+/**
+ * Transform an array into a regexp.
+ *
+ * @param  {!Array}  path
+ * @param  {Array}   keys
+ * @param  {!Object} options
+ * @return {!RegExp}
+ */
+function arrayToRegexp (path, keys, options) {
+  var parts = []
+
+  for (var i = 0; i < path.length; i++) {
+    parts.push(pathToRegexp(path[i], keys, options).source)
+  }
+
+  var regexp = new RegExp('(?:' + parts.join('|') + ')', flags(options))
+
+  return attachKeys(regexp, keys)
+}
+
+/**
+ * Create a path regexp from string input.
+ *
+ * @param  {string}  path
+ * @param  {!Array}  keys
+ * @param  {!Object} options
+ * @return {!RegExp}
+ */
+function stringToRegexp (path, keys, options) {
+  return tokensToRegExp(parse(path, options), keys, options)
+}
+
+/**
+ * Expose a function for taking tokens and returning a RegExp.
+ *
+ * @param  {!Array}          tokens
+ * @param  {(Array|Object)=} keys
+ * @param  {Object=}         options
+ * @return {!RegExp}
+ */
+function tokensToRegExp (tokens, keys, options) {
+  if (!isarray(keys)) {
+    options = /** @type {!Object} */ (keys || options)
+    keys = []
+  }
+
+  options = options || {}
+
+  var strict = options.strict
+  var end = options.end !== false
+  var route = ''
+
+  // Iterate over the tokens and create our regexp string.
+  for (var i = 0; i < tokens.length; i++) {
+    var token = tokens[i]
+
+    if (typeof token === 'string') {
+      route += escapeString(token)
+    } else {
+      var prefix = escapeString(token.prefix)
+      var capture = '(?:' + token.pattern + ')'
+
+      keys.push(token)
+
+      if (token.repeat) {
+        capture += '(?:' + prefix + capture + ')*'
+      }
+
+      if (token.optional) {
+        if (!token.partial) {
+          capture = '(?:' + prefix + '(' + capture + '))?'
+        } else {
+          capture = prefix + '(' + capture + ')?'
+        }
+      } else {
+        capture = prefix + '(' + capture + ')'
+      }
+
+      route += capture
+    }
+  }
+
+  var delimiter = escapeString(options.delimiter || '/')
+  var endsWithDelimiter = route.slice(-delimiter.length) === delimiter
+
+  // In non-strict mode we allow a slash at the end of match. If the path to
+  // match already ends with a slash, we remove it for consistency. The slash
+  // is valid at the end of a path match, not in the middle. This is important
+  // in non-ending mode, where "/test/" shouldn't match "/test//route".
+  if (!strict) {
+    route = (endsWithDelimiter ? route.slice(0, -delimiter.length) : route) + '(?:' + delimiter + '(?=$))?'
+  }
+
+  if (end) {
+    route += '$'
+  } else {
+    // In non-ending mode, we need the capturing groups to match as much as
+    // possible by using a positive lookahead to the end or next path segment.
+    route += strict && endsWithDelimiter ? '' : '(?=' + delimiter + '|$)'
+  }
+
+  return attachKeys(new RegExp('^' + route, flags(options)), keys)
+}
+
+/**
+ * Normalize the given path string, returning a regular expression.
+ *
+ * An empty array can be passed in for the keys, which will hold the
+ * placeholder key descriptions. For example, using `/user/:id`, `keys` will
+ * contain `[{ name: 'id', delimiter: '/', optional: false, repeat: false }]`.
+ *
+ * @param  {(string|RegExp|Array)} path
+ * @param  {(Array|Object)=}       keys
+ * @param  {Object=}               options
+ * @return {!RegExp}
+ */
+function pathToRegexp (path, keys, options) {
+  if (!isarray(keys)) {
+    options = /** @type {!Object} */ (keys || options)
+    keys = []
+  }
+
+  options = options || {}
+
+  if (path instanceof RegExp) {
+    return regexpToRegexp(path, /** @type {!Array} */ (keys))
+  }
+
+  if (isarray(path)) {
+    return arrayToRegexp(/** @type {!Array} */ (path), /** @type {!Array} */ (keys), options)
+  }
+
+  return stringToRegexp(/** @type {string} */ (path), /** @type {!Array} */ (keys), options)
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/path-to-regexp/node_modules/isarray/index.js":
+/*!*******************************************************************!*\
+  !*** ./node_modules/path-to-regexp/node_modules/isarray/index.js ***!
+  \*******************************************************************/
+/***/ ((module) => {
+
+module.exports = Array.isArray || function (arr) {
+  return Object.prototype.toString.call(arr) == '[object Array]';
+};
+
+
+/***/ }),
+
 /***/ "./node_modules/popper.js/dist/esm/popper.js":
 /*!***************************************************!*\
   !*** ./node_modules/popper.js/dist/esm/popper.js ***!
@@ -83076,7 +83753,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var mini_create_react_context__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! mini-create-react-context */ "./node_modules/mini-create-react-context/dist/esm/index.js");
 /* harmony import */ var tiny_invariant__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! tiny-invariant */ "./node_modules/tiny-invariant/dist/tiny-invariant.esm.js");
 /* harmony import */ var _babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime/helpers/esm/extends */ "./node_modules/@babel/runtime/helpers/esm/extends.js");
-/* harmony import */ var path_to_regexp__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! path-to-regexp */ "./node_modules/react-router/node_modules/path-to-regexp/index.js");
+/* harmony import */ var path_to_regexp__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! path-to-regexp */ "./node_modules/path-to-regexp/index.js");
 /* harmony import */ var path_to_regexp__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(path_to_regexp__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var react_is__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react-is */ "./node_modules/react-is/index.js");
 /* harmony import */ var _babel_runtime_helpers_esm_objectWithoutPropertiesLoose__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @babel/runtime/helpers/esm/objectWithoutPropertiesLoose */ "./node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js");
@@ -83852,455 +84529,6 @@ if (true) {
 
 
 //# sourceMappingURL=react-router.js.map
-
-
-/***/ }),
-
-/***/ "./node_modules/react-router/node_modules/isarray/index.js":
-/*!*****************************************************************!*\
-  !*** ./node_modules/react-router/node_modules/isarray/index.js ***!
-  \*****************************************************************/
-/***/ ((module) => {
-
-module.exports = Array.isArray || function (arr) {
-  return Object.prototype.toString.call(arr) == '[object Array]';
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/react-router/node_modules/path-to-regexp/index.js":
-/*!************************************************************************!*\
-  !*** ./node_modules/react-router/node_modules/path-to-regexp/index.js ***!
-  \************************************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-var isarray = __webpack_require__(/*! isarray */ "./node_modules/react-router/node_modules/isarray/index.js")
-
-/**
- * Expose `pathToRegexp`.
- */
-module.exports = pathToRegexp
-module.exports.parse = parse
-module.exports.compile = compile
-module.exports.tokensToFunction = tokensToFunction
-module.exports.tokensToRegExp = tokensToRegExp
-
-/**
- * The main path matching regexp utility.
- *
- * @type {RegExp}
- */
-var PATH_REGEXP = new RegExp([
-  // Match escaped characters that would otherwise appear in future matches.
-  // This allows the user to escape special characters that won't transform.
-  '(\\\\.)',
-  // Match Express-style parameters and un-named parameters with a prefix
-  // and optional suffixes. Matches appear as:
-  //
-  // "/:test(\\d+)?" => ["/", "test", "\d+", undefined, "?", undefined]
-  // "/route(\\d+)"  => [undefined, undefined, undefined, "\d+", undefined, undefined]
-  // "/*"            => ["/", undefined, undefined, undefined, undefined, "*"]
-  '([\\/.])?(?:(?:\\:(\\w+)(?:\\(((?:\\\\.|[^\\\\()])+)\\))?|\\(((?:\\\\.|[^\\\\()])+)\\))([+*?])?|(\\*))'
-].join('|'), 'g')
-
-/**
- * Parse a string for the raw tokens.
- *
- * @param  {string}  str
- * @param  {Object=} options
- * @return {!Array}
- */
-function parse (str, options) {
-  var tokens = []
-  var key = 0
-  var index = 0
-  var path = ''
-  var defaultDelimiter = options && options.delimiter || '/'
-  var res
-
-  while ((res = PATH_REGEXP.exec(str)) != null) {
-    var m = res[0]
-    var escaped = res[1]
-    var offset = res.index
-    path += str.slice(index, offset)
-    index = offset + m.length
-
-    // Ignore already escaped sequences.
-    if (escaped) {
-      path += escaped[1]
-      continue
-    }
-
-    var next = str[index]
-    var prefix = res[2]
-    var name = res[3]
-    var capture = res[4]
-    var group = res[5]
-    var modifier = res[6]
-    var asterisk = res[7]
-
-    // Push the current path onto the tokens.
-    if (path) {
-      tokens.push(path)
-      path = ''
-    }
-
-    var partial = prefix != null && next != null && next !== prefix
-    var repeat = modifier === '+' || modifier === '*'
-    var optional = modifier === '?' || modifier === '*'
-    var delimiter = res[2] || defaultDelimiter
-    var pattern = capture || group
-
-    tokens.push({
-      name: name || key++,
-      prefix: prefix || '',
-      delimiter: delimiter,
-      optional: optional,
-      repeat: repeat,
-      partial: partial,
-      asterisk: !!asterisk,
-      pattern: pattern ? escapeGroup(pattern) : (asterisk ? '.*' : '[^' + escapeString(delimiter) + ']+?')
-    })
-  }
-
-  // Match any characters still remaining.
-  if (index < str.length) {
-    path += str.substr(index)
-  }
-
-  // If the path exists, push it onto the end.
-  if (path) {
-    tokens.push(path)
-  }
-
-  return tokens
-}
-
-/**
- * Compile a string to a template function for the path.
- *
- * @param  {string}             str
- * @param  {Object=}            options
- * @return {!function(Object=, Object=)}
- */
-function compile (str, options) {
-  return tokensToFunction(parse(str, options), options)
-}
-
-/**
- * Prettier encoding of URI path segments.
- *
- * @param  {string}
- * @return {string}
- */
-function encodeURIComponentPretty (str) {
-  return encodeURI(str).replace(/[\/?#]/g, function (c) {
-    return '%' + c.charCodeAt(0).toString(16).toUpperCase()
-  })
-}
-
-/**
- * Encode the asterisk parameter. Similar to `pretty`, but allows slashes.
- *
- * @param  {string}
- * @return {string}
- */
-function encodeAsterisk (str) {
-  return encodeURI(str).replace(/[?#]/g, function (c) {
-    return '%' + c.charCodeAt(0).toString(16).toUpperCase()
-  })
-}
-
-/**
- * Expose a method for transforming tokens into the path function.
- */
-function tokensToFunction (tokens, options) {
-  // Compile all the tokens into regexps.
-  var matches = new Array(tokens.length)
-
-  // Compile all the patterns before compilation.
-  for (var i = 0; i < tokens.length; i++) {
-    if (typeof tokens[i] === 'object') {
-      matches[i] = new RegExp('^(?:' + tokens[i].pattern + ')$', flags(options))
-    }
-  }
-
-  return function (obj, opts) {
-    var path = ''
-    var data = obj || {}
-    var options = opts || {}
-    var encode = options.pretty ? encodeURIComponentPretty : encodeURIComponent
-
-    for (var i = 0; i < tokens.length; i++) {
-      var token = tokens[i]
-
-      if (typeof token === 'string') {
-        path += token
-
-        continue
-      }
-
-      var value = data[token.name]
-      var segment
-
-      if (value == null) {
-        if (token.optional) {
-          // Prepend partial segment prefixes.
-          if (token.partial) {
-            path += token.prefix
-          }
-
-          continue
-        } else {
-          throw new TypeError('Expected "' + token.name + '" to be defined')
-        }
-      }
-
-      if (isarray(value)) {
-        if (!token.repeat) {
-          throw new TypeError('Expected "' + token.name + '" to not repeat, but received `' + JSON.stringify(value) + '`')
-        }
-
-        if (value.length === 0) {
-          if (token.optional) {
-            continue
-          } else {
-            throw new TypeError('Expected "' + token.name + '" to not be empty')
-          }
-        }
-
-        for (var j = 0; j < value.length; j++) {
-          segment = encode(value[j])
-
-          if (!matches[i].test(segment)) {
-            throw new TypeError('Expected all "' + token.name + '" to match "' + token.pattern + '", but received `' + JSON.stringify(segment) + '`')
-          }
-
-          path += (j === 0 ? token.prefix : token.delimiter) + segment
-        }
-
-        continue
-      }
-
-      segment = token.asterisk ? encodeAsterisk(value) : encode(value)
-
-      if (!matches[i].test(segment)) {
-        throw new TypeError('Expected "' + token.name + '" to match "' + token.pattern + '", but received "' + segment + '"')
-      }
-
-      path += token.prefix + segment
-    }
-
-    return path
-  }
-}
-
-/**
- * Escape a regular expression string.
- *
- * @param  {string} str
- * @return {string}
- */
-function escapeString (str) {
-  return str.replace(/([.+*?=^!:${}()[\]|\/\\])/g, '\\$1')
-}
-
-/**
- * Escape the capturing group by escaping special characters and meaning.
- *
- * @param  {string} group
- * @return {string}
- */
-function escapeGroup (group) {
-  return group.replace(/([=!:$\/()])/g, '\\$1')
-}
-
-/**
- * Attach the keys as a property of the regexp.
- *
- * @param  {!RegExp} re
- * @param  {Array}   keys
- * @return {!RegExp}
- */
-function attachKeys (re, keys) {
-  re.keys = keys
-  return re
-}
-
-/**
- * Get the flags for a regexp from the options.
- *
- * @param  {Object} options
- * @return {string}
- */
-function flags (options) {
-  return options && options.sensitive ? '' : 'i'
-}
-
-/**
- * Pull out keys from a regexp.
- *
- * @param  {!RegExp} path
- * @param  {!Array}  keys
- * @return {!RegExp}
- */
-function regexpToRegexp (path, keys) {
-  // Use a negative lookahead to match only capturing groups.
-  var groups = path.source.match(/\((?!\?)/g)
-
-  if (groups) {
-    for (var i = 0; i < groups.length; i++) {
-      keys.push({
-        name: i,
-        prefix: null,
-        delimiter: null,
-        optional: false,
-        repeat: false,
-        partial: false,
-        asterisk: false,
-        pattern: null
-      })
-    }
-  }
-
-  return attachKeys(path, keys)
-}
-
-/**
- * Transform an array into a regexp.
- *
- * @param  {!Array}  path
- * @param  {Array}   keys
- * @param  {!Object} options
- * @return {!RegExp}
- */
-function arrayToRegexp (path, keys, options) {
-  var parts = []
-
-  for (var i = 0; i < path.length; i++) {
-    parts.push(pathToRegexp(path[i], keys, options).source)
-  }
-
-  var regexp = new RegExp('(?:' + parts.join('|') + ')', flags(options))
-
-  return attachKeys(regexp, keys)
-}
-
-/**
- * Create a path regexp from string input.
- *
- * @param  {string}  path
- * @param  {!Array}  keys
- * @param  {!Object} options
- * @return {!RegExp}
- */
-function stringToRegexp (path, keys, options) {
-  return tokensToRegExp(parse(path, options), keys, options)
-}
-
-/**
- * Expose a function for taking tokens and returning a RegExp.
- *
- * @param  {!Array}          tokens
- * @param  {(Array|Object)=} keys
- * @param  {Object=}         options
- * @return {!RegExp}
- */
-function tokensToRegExp (tokens, keys, options) {
-  if (!isarray(keys)) {
-    options = /** @type {!Object} */ (keys || options)
-    keys = []
-  }
-
-  options = options || {}
-
-  var strict = options.strict
-  var end = options.end !== false
-  var route = ''
-
-  // Iterate over the tokens and create our regexp string.
-  for (var i = 0; i < tokens.length; i++) {
-    var token = tokens[i]
-
-    if (typeof token === 'string') {
-      route += escapeString(token)
-    } else {
-      var prefix = escapeString(token.prefix)
-      var capture = '(?:' + token.pattern + ')'
-
-      keys.push(token)
-
-      if (token.repeat) {
-        capture += '(?:' + prefix + capture + ')*'
-      }
-
-      if (token.optional) {
-        if (!token.partial) {
-          capture = '(?:' + prefix + '(' + capture + '))?'
-        } else {
-          capture = prefix + '(' + capture + ')?'
-        }
-      } else {
-        capture = prefix + '(' + capture + ')'
-      }
-
-      route += capture
-    }
-  }
-
-  var delimiter = escapeString(options.delimiter || '/')
-  var endsWithDelimiter = route.slice(-delimiter.length) === delimiter
-
-  // In non-strict mode we allow a slash at the end of match. If the path to
-  // match already ends with a slash, we remove it for consistency. The slash
-  // is valid at the end of a path match, not in the middle. This is important
-  // in non-ending mode, where "/test/" shouldn't match "/test//route".
-  if (!strict) {
-    route = (endsWithDelimiter ? route.slice(0, -delimiter.length) : route) + '(?:' + delimiter + '(?=$))?'
-  }
-
-  if (end) {
-    route += '$'
-  } else {
-    // In non-ending mode, we need the capturing groups to match as much as
-    // possible by using a positive lookahead to the end or next path segment.
-    route += strict && endsWithDelimiter ? '' : '(?=' + delimiter + '|$)'
-  }
-
-  return attachKeys(new RegExp('^' + route, flags(options)), keys)
-}
-
-/**
- * Normalize the given path string, returning a regular expression.
- *
- * An empty array can be passed in for the keys, which will hold the
- * placeholder key descriptions. For example, using `/user/:id`, `keys` will
- * contain `[{ name: 'id', delimiter: '/', optional: false, repeat: false }]`.
- *
- * @param  {(string|RegExp|Array)} path
- * @param  {(Array|Object)=}       keys
- * @param  {Object=}               options
- * @return {!RegExp}
- */
-function pathToRegexp (path, keys, options) {
-  if (!isarray(keys)) {
-    options = /** @type {!Object} */ (keys || options)
-    keys = []
-  }
-
-  options = options || {}
-
-  if (path instanceof RegExp) {
-    return regexpToRegexp(path, /** @type {!Array} */ (keys))
-  }
-
-  if (isarray(path)) {
-    return arrayToRegexp(/** @type {!Array} */ (path), /** @type {!Array} */ (keys), options)
-  }
-
-  return stringToRegexp(/** @type {string} */ (path), /** @type {!Array} */ (keys), options)
-}
 
 
 /***/ }),
@@ -88621,7 +88849,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _index_4bd03571_esm_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./index-4bd03571.esm.js */ "./node_modules/react-select/dist/index-4bd03571.esm.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _emotion_react__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @emotion/react */ "./node_modules/@emotion/react/dist/emotion-element-a8309070.browser.esm.js");
-/* harmony import */ var _emotion_cache__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @emotion/cache */ "./node_modules/react-select/node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js");
+/* harmony import */ var _emotion_cache__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @emotion/cache */ "./node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js");
 /* harmony import */ var memoize_one__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! memoize-one */ "./node_modules/memoize-one/dist/memoize-one.esm.js");
 /* harmony import */ var _babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @babel/runtime/helpers/extends */ "./node_modules/@babel/runtime/helpers/esm/extends.js");
 /* harmony import */ var _babel_runtime_helpers_toConsumableArray__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @babel/runtime/helpers/toConsumableArray */ "./node_modules/@babel/runtime/helpers/esm/toConsumableArray.js");
@@ -88849,496 +89077,6 @@ var manageState = function manageState(SelectComponent) {
     return StateManager;
   }(react__WEBPACK_IMPORTED_MODULE_5__.Component), _class.defaultProps = defaultProps, _temp;
 };
-
-
-
-
-/***/ }),
-
-/***/ "./node_modules/react-select/node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js":
-/*!*************************************************************************************************!*\
-  !*** ./node_modules/react-select/node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js ***!
-  \*************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _emotion_sheet__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @emotion/sheet */ "./node_modules/react-select/node_modules/@emotion/sheet/dist/emotion-sheet.browser.esm.js");
-/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Tokenizer.js");
-/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Utility.js");
-/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Middleware.js");
-/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Serializer.js");
-/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Enum.js");
-/* harmony import */ var stylis__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! stylis */ "./node_modules/stylis/src/Parser.js");
-/* harmony import */ var _emotion_weak_memoize__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @emotion/weak-memoize */ "./node_modules/@emotion/weak-memoize/dist/weak-memoize.browser.esm.js");
-/* harmony import */ var _emotion_memoize__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @emotion/memoize */ "./node_modules/@emotion/memoize/dist/memoize.browser.esm.js");
-
-
-
-
-
-var last = function last(arr) {
-  return arr.length ? arr[arr.length - 1] : null;
-};
-
-var toRules = function toRules(parsed, points) {
-  // pretend we've started with a comma
-  var index = -1;
-  var character = 44;
-
-  do {
-    switch ((0,stylis__WEBPACK_IMPORTED_MODULE_3__.token)(character)) {
-      case 0:
-        // &\f
-        if (character === 38 && (0,stylis__WEBPACK_IMPORTED_MODULE_3__.peek)() === 12) {
-          // this is not 100% correct, we don't account for literal sequences here - like for example quoted strings
-          // stylis inserts \f after & to know when & where it should replace this sequence with the context selector
-          // and when it should just concatenate the outer and inner selectors
-          // it's very unlikely for this sequence to actually appear in a different context, so we just leverage this fact here
-          points[index] = 1;
-        }
-
-        parsed[index] += (0,stylis__WEBPACK_IMPORTED_MODULE_3__.identifier)(stylis__WEBPACK_IMPORTED_MODULE_3__.position - 1);
-        break;
-
-      case 2:
-        parsed[index] += (0,stylis__WEBPACK_IMPORTED_MODULE_3__.delimit)(character);
-        break;
-
-      case 4:
-        // comma
-        if (character === 44) {
-          // colon
-          parsed[++index] = (0,stylis__WEBPACK_IMPORTED_MODULE_3__.peek)() === 58 ? '&\f' : '';
-          points[index] = parsed[index].length;
-          break;
-        }
-
-      // fallthrough
-
-      default:
-        parsed[index] += (0,stylis__WEBPACK_IMPORTED_MODULE_4__.from)(character);
-    }
-  } while (character = (0,stylis__WEBPACK_IMPORTED_MODULE_3__.next)());
-
-  return parsed;
-};
-
-var getRules = function getRules(value, points) {
-  return (0,stylis__WEBPACK_IMPORTED_MODULE_3__.dealloc)(toRules((0,stylis__WEBPACK_IMPORTED_MODULE_3__.alloc)(value), points));
-}; // WeakSet would be more appropriate, but only WeakMap is supported in IE11
-
-
-var fixedElements = /* #__PURE__ */new WeakMap();
-var compat = function compat(element) {
-  if (element.type !== 'rule' || !element.parent || // .length indicates if this rule contains pseudo or not
-  !element.length) {
-    return;
-  }
-
-  var value = element.value,
-      parent = element.parent;
-  var isImplicitRule = element.column === parent.column && element.line === parent.line;
-
-  while (parent.type !== 'rule') {
-    parent = parent.parent;
-    if (!parent) return;
-  } // short-circuit for the simplest case
-
-
-  if (element.props.length === 1 && value.charCodeAt(0) !== 58
-  /* colon */
-  && !fixedElements.get(parent)) {
-    return;
-  } // if this is an implicitly inserted rule (the one eagerly inserted at the each new nested level)
-  // then the props has already been manipulated beforehand as they that array is shared between it and its "rule parent"
-
-
-  if (isImplicitRule) {
-    return;
-  }
-
-  fixedElements.set(element, true);
-  var points = [];
-  var rules = getRules(value, points);
-  var parentRules = parent.props;
-
-  for (var i = 0, k = 0; i < rules.length; i++) {
-    for (var j = 0; j < parentRules.length; j++, k++) {
-      element.props[k] = points[i] ? rules[i].replace(/&\f/g, parentRules[j]) : parentRules[j] + " " + rules[i];
-    }
-  }
-};
-var removeLabel = function removeLabel(element) {
-  if (element.type === 'decl') {
-    var value = element.value;
-
-    if ( // charcode for l
-    value.charCodeAt(0) === 108 && // charcode for b
-    value.charCodeAt(2) === 98) {
-      // this ignores label
-      element["return"] = '';
-      element.value = '';
-    }
-  }
-};
-var ignoreFlag = 'emotion-disable-server-rendering-unsafe-selector-warning-please-do-not-use-this-the-warning-exists-for-a-reason';
-
-var isIgnoringComment = function isIgnoringComment(element) {
-  return !!element && element.type === 'comm' && element.children.indexOf(ignoreFlag) > -1;
-};
-
-var createUnsafeSelectorsAlarm = function createUnsafeSelectorsAlarm(cache) {
-  return function (element, index, children) {
-    if (element.type !== 'rule') return;
-    var unsafePseudoClasses = element.value.match(/(:first|:nth|:nth-last)-child/g);
-
-    if (unsafePseudoClasses && cache.compat !== true) {
-      var prevElement = index > 0 ? children[index - 1] : null;
-
-      if (prevElement && isIgnoringComment(last(prevElement.children))) {
-        return;
-      }
-
-      unsafePseudoClasses.forEach(function (unsafePseudoClass) {
-        console.error("The pseudo class \"" + unsafePseudoClass + "\" is potentially unsafe when doing server-side rendering. Try changing it to \"" + unsafePseudoClass.split('-child')[0] + "-of-type\".");
-      });
-    }
-  };
-};
-
-var isImportRule = function isImportRule(element) {
-  return element.type.charCodeAt(1) === 105 && element.type.charCodeAt(0) === 64;
-};
-
-var isPrependedWithRegularRules = function isPrependedWithRegularRules(index, children) {
-  for (var i = index - 1; i >= 0; i--) {
-    if (!isImportRule(children[i])) {
-      return true;
-    }
-  }
-
-  return false;
-}; // use this to remove incorrect elements from further processing
-// so they don't get handed to the `sheet` (or anything else)
-// as that could potentially lead to additional logs which in turn could be overhelming to the user
-
-
-var nullifyElement = function nullifyElement(element) {
-  element.type = '';
-  element.value = '';
-  element["return"] = '';
-  element.children = '';
-  element.props = '';
-};
-
-var incorrectImportAlarm = function incorrectImportAlarm(element, index, children) {
-  if (!isImportRule(element)) {
-    return;
-  }
-
-  if (element.parent) {
-    console.error("`@import` rules can't be nested inside other rules. Please move it to the top level and put it before regular rules. Keep in mind that they can only be used within global styles.");
-    nullifyElement(element);
-  } else if (isPrependedWithRegularRules(index, children)) {
-    console.error("`@import` rules can't be after other rules. Please put your `@import` rules before your other rules.");
-    nullifyElement(element);
-  }
-};
-
-var defaultStylisPlugins = [stylis__WEBPACK_IMPORTED_MODULE_5__.prefixer];
-
-var createCache = function createCache(options) {
-  var key = options.key;
-
-  if ( true && !key) {
-    throw new Error("You have to configure `key` for your cache. Please make sure it's unique (and not equal to 'css') as it's used for linking styles to your cache.\n" + "If multiple caches share the same key they might \"fight\" for each other's style elements.");
-  }
-
-  if ( key === 'css') {
-    var ssrStyles = document.querySelectorAll("style[data-emotion]:not([data-s])"); // get SSRed styles out of the way of React's hydration
-    // document.head is a safe place to move them to(though note document.head is not necessarily the last place they will be)
-    // note this very very intentionally targets all style elements regardless of the key to ensure
-    // that creating a cache works inside of render of a React component
-
-    Array.prototype.forEach.call(ssrStyles, function (node) {
-      // we want to only move elements which have a space in the data-emotion attribute value
-      // because that indicates that it is an Emotion 11 server-side rendered style elements
-      // while we will already ignore Emotion 11 client-side inserted styles because of the :not([data-s]) part in the selector
-      // Emotion 10 client-side inserted styles did not have data-s (but importantly did not have a space in their data-emotion attributes)
-      // so checking for the space ensures that loading Emotion 11 after Emotion 10 has inserted some styles
-      // will not result in the Emotion 10 styles being destroyed
-      var dataEmotionAttribute = node.getAttribute('data-emotion');
-
-      if (dataEmotionAttribute.indexOf(' ') === -1) {
-        return;
-      }
-      document.head.appendChild(node);
-      node.setAttribute('data-s', '');
-    });
-  }
-
-  var stylisPlugins = options.stylisPlugins || defaultStylisPlugins;
-
-  if (true) {
-    // $FlowFixMe
-    if (/[^a-z-]/.test(key)) {
-      throw new Error("Emotion key must only contain lower case alphabetical characters and - but \"" + key + "\" was passed");
-    }
-  }
-
-  var inserted = {}; // $FlowFixMe
-
-  var container;
-  var nodesToHydrate = [];
-
-  {
-    container = options.container || document.head;
-    Array.prototype.forEach.call( // this means we will ignore elements which don't have a space in them which
-    // means that the style elements we're looking at are only Emotion 11 server-rendered style elements
-    document.querySelectorAll("style[data-emotion^=\"" + key + " \"]"), function (node) {
-      var attrib = node.getAttribute("data-emotion").split(' '); // $FlowFixMe
-
-      for (var i = 1; i < attrib.length; i++) {
-        inserted[attrib[i]] = true;
-      }
-
-      nodesToHydrate.push(node);
-    });
-  }
-
-  var _insert;
-
-  var omnipresentPlugins = [compat, removeLabel];
-
-  if (true) {
-    omnipresentPlugins.push(createUnsafeSelectorsAlarm({
-      get compat() {
-        return cache.compat;
-      }
-
-    }), incorrectImportAlarm);
-  }
-
-  {
-    var currentSheet;
-    var finalizingPlugins = [stylis__WEBPACK_IMPORTED_MODULE_6__.stringify,  true ? function (element) {
-      if (!element.root) {
-        if (element["return"]) {
-          currentSheet.insert(element["return"]);
-        } else if (element.value && element.type !== stylis__WEBPACK_IMPORTED_MODULE_7__.COMMENT) {
-          // insert empty rule in non-production environments
-          // so @emotion/jest can grab `key` from the (JS)DOM for caches without any rules inserted yet
-          currentSheet.insert(element.value + "{}");
-        }
-      }
-    } : 0];
-    var serializer = (0,stylis__WEBPACK_IMPORTED_MODULE_5__.middleware)(omnipresentPlugins.concat(stylisPlugins, finalizingPlugins));
-
-    var stylis = function stylis(styles) {
-      return (0,stylis__WEBPACK_IMPORTED_MODULE_6__.serialize)((0,stylis__WEBPACK_IMPORTED_MODULE_8__.compile)(styles), serializer);
-    };
-
-    _insert = function insert(selector, serialized, sheet, shouldCache) {
-      currentSheet = sheet;
-
-      if ( true && serialized.map !== undefined) {
-        currentSheet = {
-          insert: function insert(rule) {
-            sheet.insert(rule + serialized.map);
-          }
-        };
-      }
-
-      stylis(selector ? selector + "{" + serialized.styles + "}" : serialized.styles);
-
-      if (shouldCache) {
-        cache.inserted[serialized.name] = true;
-      }
-    };
-  }
-
-  var cache = {
-    key: key,
-    sheet: new _emotion_sheet__WEBPACK_IMPORTED_MODULE_0__.StyleSheet({
-      key: key,
-      container: container,
-      nonce: options.nonce,
-      speedy: options.speedy,
-      prepend: options.prepend
-    }),
-    nonce: options.nonce,
-    inserted: inserted,
-    registered: {},
-    insert: _insert
-  };
-  cache.sheet.hydrate(nodesToHydrate);
-  return cache;
-};
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (createCache);
-
-
-/***/ }),
-
-/***/ "./node_modules/react-select/node_modules/@emotion/sheet/dist/emotion-sheet.browser.esm.js":
-/*!*************************************************************************************************!*\
-  !*** ./node_modules/react-select/node_modules/@emotion/sheet/dist/emotion-sheet.browser.esm.js ***!
-  \*************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "StyleSheet": () => (/* binding */ StyleSheet)
-/* harmony export */ });
-/*
-
-Based off glamor's StyleSheet, thanks Sunil ❤️
-
-high performance StyleSheet for css-in-js systems
-
-- uses multiple style tags behind the scenes for millions of rules
-- uses `insertRule` for appending in production for *much* faster performance
-
-// usage
-
-import { StyleSheet } from '@emotion/sheet'
-
-let styleSheet = new StyleSheet({ key: '', container: document.head })
-
-styleSheet.insert('#box { border: 1px solid red; }')
-- appends a css rule into the stylesheet
-
-styleSheet.flush()
-- empties the stylesheet of all its contents
-
-*/
-// $FlowFixMe
-function sheetForTag(tag) {
-  if (tag.sheet) {
-    // $FlowFixMe
-    return tag.sheet;
-  } // this weirdness brought to you by firefox
-
-  /* istanbul ignore next */
-
-
-  for (var i = 0; i < document.styleSheets.length; i++) {
-    if (document.styleSheets[i].ownerNode === tag) {
-      // $FlowFixMe
-      return document.styleSheets[i];
-    }
-  }
-}
-
-function createStyleElement(options) {
-  var tag = document.createElement('style');
-  tag.setAttribute('data-emotion', options.key);
-
-  if (options.nonce !== undefined) {
-    tag.setAttribute('nonce', options.nonce);
-  }
-
-  tag.appendChild(document.createTextNode(''));
-  tag.setAttribute('data-s', '');
-  return tag;
-}
-
-var StyleSheet = /*#__PURE__*/function () {
-  function StyleSheet(options) {
-    var _this = this;
-
-    this._insertTag = function (tag) {
-      var before;
-
-      if (_this.tags.length === 0) {
-        before = _this.prepend ? _this.container.firstChild : _this.before;
-      } else {
-        before = _this.tags[_this.tags.length - 1].nextSibling;
-      }
-
-      _this.container.insertBefore(tag, before);
-
-      _this.tags.push(tag);
-    };
-
-    this.isSpeedy = options.speedy === undefined ? "development" === 'production' : options.speedy;
-    this.tags = [];
-    this.ctr = 0;
-    this.nonce = options.nonce; // key is the value of the data-emotion attribute, it's used to identify different sheets
-
-    this.key = options.key;
-    this.container = options.container;
-    this.prepend = options.prepend;
-    this.before = null;
-  }
-
-  var _proto = StyleSheet.prototype;
-
-  _proto.hydrate = function hydrate(nodes) {
-    nodes.forEach(this._insertTag);
-  };
-
-  _proto.insert = function insert(rule) {
-    // the max length is how many rules we have per style tag, it's 65000 in speedy mode
-    // it's 1 in dev because we insert source maps that map a single rule to a location
-    // and you can only have one source map per style tag
-    if (this.ctr % (this.isSpeedy ? 65000 : 1) === 0) {
-      this._insertTag(createStyleElement(this));
-    }
-
-    var tag = this.tags[this.tags.length - 1];
-
-    if (true) {
-      var isImportRule = rule.charCodeAt(0) === 64 && rule.charCodeAt(1) === 105;
-
-      if (isImportRule && this._alreadyInsertedOrderInsensitiveRule) {
-        // this would only cause problem in speedy mode
-        // but we don't want enabling speedy to affect the observable behavior
-        // so we report this error at all times
-        console.error("You're attempting to insert the following rule:\n" + rule + '\n\n`@import` rules must be before all other types of rules in a stylesheet but other rules have already been inserted. Please ensure that `@import` rules are before all other rules.');
-      }
-      this._alreadyInsertedOrderInsensitiveRule = this._alreadyInsertedOrderInsensitiveRule || !isImportRule;
-    }
-
-    if (this.isSpeedy) {
-      var sheet = sheetForTag(tag);
-
-      try {
-        // this is the ultrafast version, works across browsers
-        // the big drawback is that the css won't be editable in devtools
-        sheet.insertRule(rule, sheet.cssRules.length);
-      } catch (e) {
-        if ( true && !/:(-moz-placeholder|-ms-input-placeholder|-moz-read-write|-moz-read-only){/.test(rule)) {
-          console.error("There was a problem inserting the following rule: \"" + rule + "\"", e);
-        }
-      }
-    } else {
-      tag.appendChild(document.createTextNode(rule));
-    }
-
-    this.ctr++;
-  };
-
-  _proto.flush = function flush() {
-    // $FlowFixMe
-    this.tags.forEach(function (tag) {
-      return tag.parentNode.removeChild(tag);
-    });
-    this.tags = [];
-    this.ctr = 0;
-
-    if (true) {
-      this._alreadyInsertedOrderInsensitiveRule = false;
-    }
-  };
-
-  return StyleSheet;
-}();
 
 
 

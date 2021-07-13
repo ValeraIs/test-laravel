@@ -17,7 +17,8 @@ class MiningResource extends JsonResource
         return [
             'id' => $this->resource->id,
             'mined' => $this->resource->mined,
-            'date_mined' => $this->resource->date_mined->getPreciseTimestamp(3),
+            'date_mined' => $this->resource->date_mined ?
+                $this->resource->date_mined->getPreciseTimestamp(3) : null,
             'created_at' => $this->resource->created_at ?
                 $this->resource->created_at->getPreciseTimestamp(3) : null,
             'updated_at' => $this->resource->updated_at ?

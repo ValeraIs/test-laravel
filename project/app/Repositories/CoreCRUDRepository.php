@@ -21,7 +21,7 @@ abstract class CoreCRUDRepository extends CoreRepository
     {
         return $this->model
             ->with($this->withRelations())
-            ->paginate(20);
+            ->paginate(50);
     }
 
     /**
