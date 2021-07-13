@@ -41,6 +41,9 @@ services:
       context: ./../
       dockerfile: ./docker/php/Dockerfile
     container_name: ${APP_NAME}_php
+    depends_on:
+      - mysql
+      - redis
     networks:
       - app-network
     volumes: *php-volumes
@@ -53,6 +56,8 @@ services:
       - 80:80
     networks:
       - app-network
+    depends_on:
+      - php
     volumes: *web-volumes
 
   mysql:
@@ -69,6 +74,8 @@ services:
     container_name: ${APP_NAME}_phpmyadmin
     ports:
       - 1234:80
+    depends_on:
+      - mysql
     networks:
       - app-network
 
@@ -85,6 +92,8 @@ services:
       context: ./../
       dockerfile: ./docker/queue/Dockerfile
     volumes: *queue-volumes
+    depends_on:
+      - php
     networks:
       - app-network
 networks:

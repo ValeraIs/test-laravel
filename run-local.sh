@@ -7,4 +7,4 @@ docker-compose -f ${COMPOSE_FILE} down
 
 docker-compose -f ${COMPOSE_FILE} build #--no-cache
 
-docker-compose -f ${COMPOSE_FILE} up
+docker-compose -f ${COMPOSE_FILE} up -d
